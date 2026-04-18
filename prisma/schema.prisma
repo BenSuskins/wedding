@@ -1,0 +1,221 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = []
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// RSVP unit: the whole household toggles together, or each guest answers individually.
+enum RsvpMode {
+  household
+  individual
+}
+
+// RsvpAuditLog is append-only. Actor kind distinguishes guest-token writes from admin writes.
+enum AuditActorKind {
+  guest_token
+  admin
+}
+
+// Invite groups one or more guests under a single shared link.
+model Invite {
+  id                String                 @id @default(cuid())
+  tokenVersion      Int                    @default(1)
+  rsvpMode          RsvpMode               @default(household)
+  plusOneAllowed    Boolean                @default(false)
+  adminNotes        String?
+  createdAt         DateTime               @default(now())
+  updatedAt         DateTime               @updatedAt
+
+  guests            Guest[]
+  eventAllowances   InviteEventAllowance[]
+  auditLogEntries   RsvpAuditLog[]
+
+  @@map("invite")
+}
+
+model Guest {
+  id              String          @id @default(cuid())
+  inviteId        String
+  displayName     String
+  isPlusOne       Boolean         @default(false)
+  addedByGuest    Boolean         @default(false)
+  orderIndex      Int             @default(0)
+  deletedAt       DateTime?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  invite          Invite          @relation(fields: [inviteId], references: [id], onDelete: Cascade)
+  rsvpResponses   RsvpResponse[]
+  auditLogEntries RsvpAuditLog[]
+
+  @@index([inviteId])
+  @@map("guest")
+}
+
+model Event {
+  id                 String                 @id @default(cuid())
+  slug               String                 @unique
+  title              String
+  startsAt           DateTime
+  endsAt             DateTime
+  locationName       String
+  locationAddress    String
+  locationMapUrl     String?
+  descriptionMarkdown String?
+  orderIndex         Int                    @default(0)
+  createdAt          DateTime               @default(now())
+  updatedAt          DateTime               @updatedAt
+
+  inviteAllowances   InviteEventAllowance[]
+  menuCourses        MenuCourse[]
+  rsvpResponses      RsvpResponse[]
+  auditLogEntries    RsvpAuditLog[]
+
+  @@map("event")
+}
+
+model InviteEventAllowance {
+  inviteId String
+  eventId  String
+
+  invite   Invite @relation(fields: [inviteId], references: [id], onDelete: Cascade)
+  event    Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@id([inviteId, eventId])
+  @@index([eventId])
+  @@map("invite_event_allowance")
+}
+
+// MenuCourse is either event-scoped (eventId set) or global (eventId null).
+model MenuCourse {
+  id         String       @id @default(cuid())
+  eventId    String?
+  title      String
+  orderIndex Int          @default(0)
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+
+  event      Event?       @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  options    MenuOption[]
+
+  @@index([eventId])
+  @@map("menu_course")
+}
+
+model MenuOption {
+  id          String               @id @default(cuid())
+  courseId    String
+  label       String
+  description String?
+  orderIndex  Int                  @default(0)
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+
+  course      MenuCourse           @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  selections  RsvpMenuSelection[]
+
+  @@index([courseId])
+  @@map("menu_option")
+}
+
+model RsvpResponse {
+  id                String              @id @default(cuid())
+  guestId           String
+  eventId           String
+  attending         Boolean
+  allergiesText     String?
+  songRequestText   String?
+  submittedAt       DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  deletedAt         DateTime?
+
+  guest             Guest               @relation(fields: [guestId], references: [id], onDelete: Cascade)
+  event             Event               @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  menuSelections    RsvpMenuSelection[]
+
+  @@unique([guestId, eventId])
+  @@index([eventId])
+  @@map("rsvp_response")
+}
+
+model RsvpMenuSelection {
+  responseId String
+  courseId   String
+  optionId   String
+
+  response   RsvpResponse @relation(fields: [responseId], references: [id], onDelete: Cascade)
+  option     MenuOption   @relation(fields: [optionId], references: [id], onDelete: Restrict)
+
+  @@id([responseId, courseId])
+  @@index([optionId])
+  @@map("rsvp_menu_selection")
+}
+
+// Append-only audit log. The DB grants (set in a migration) revoke UPDATE/DELETE for the app role.
+model RsvpAuditLog {
+  id          String          @id @default(cuid())
+  inviteId    String
+  guestId     String?
+  eventId     String?
+  action      String
+  payloadJson Json
+  actorKind   AuditActorKind
+  actorRef    String
+  occurredAt  DateTime        @default(now())
+
+  invite      Invite          @relation(fields: [inviteId], references: [id], onDelete: Restrict)
+  guest       Guest?          @relation(fields: [guestId], references: [id], onDelete: SetNull)
+  event       Event?          @relation(fields: [eventId], references: [id], onDelete: SetNull)
+
+  @@index([inviteId, occurredAt])
+  @@map("rsvp_audit_log")
+}
+
+model ContentBlock {
+  id             String   @id @default(cuid())
+  key            String   @unique
+  title          String
+  bodyMarkdown   String
+  updatedAt      DateTime @updatedAt
+  updatedByAdmin String?
+
+  @@map("content_block")
+}
+
+model SiteSetting {
+  key       String   @id
+  valueJson Json
+  updatedAt DateTime @updatedAt
+
+  @@map("site_setting")
+}
+
+model ImageAsset {
+  id         String   @id @default(cuid())
+  filename   String
+  diskPath   String
+  mime       String
+  bytes      Int
+  width      Int?
+  height     Int?
+  uploadedBy String?
+  createdAt  DateTime @default(now())
+
+  @@map("image_asset")
+}
+
+// Local mirror of Authelia subjects so audit log rows can reference a stable id.
+// Authorisation is delegated to Authelia; any subject that authenticates becomes an admin.
+model AdminUser {
+  id         String    @id @default(cuid())
+  oidcSub    String    @unique
+  email      String?
+  lastSeenAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@map("admin_user")
+}

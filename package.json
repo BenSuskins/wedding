@@ -11,9 +11,15 @@
     "test": "vitest run --project unit",
     "test:watch": "vitest --project unit",
     "test:contract": "vitest run --project contract",
-    "e2e": "playwright test"
+    "e2e": "playwright test",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:migrate:deploy": "prisma migrate deploy",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
+    "@prisma/adapter-pg": "^7.7.0",
+    "@prisma/client": "^7.7.0",
     "next": "^15.1.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
@@ -31,6 +37,7 @@
     "eslint-config-next": "^15.1.0",
     "pg": "^8.20.0",
     "postcss": "^8.4.49",
+    "prisma": "^7.7.0",
     "tailwindcss": "^4.0.0",
     "testcontainers": "^11.14.0",
     "typescript": "^5.7.0",
@@ -42,6 +49,9 @@
   },
   "pnpm": {
     "onlyBuiltDependencies": [
+      "@prisma/client",
+      "@prisma/engines",
+      "prisma",
       "sharp",
       "unrs-resolver"
     ]
