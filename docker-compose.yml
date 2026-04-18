@@ -1,0 +1,42 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: wedding_dev
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d wedding_dev"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  app:
+    profiles: ["full"]
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: "postgresql://postgres:dev@db:5432/wedding_dev?schema=public"
+      INVITE_TOKEN_SECRET: "dev-invite-secret-change-me"
+      AUTH_SECRET: "dev-auth-secret-change-me"
+      OIDC_ISSUER: "https://auth.example.com"
+      OIDC_CLIENT_ID: "wedding-admin"
+      OIDC_CLIENT_SECRET: "dev-client-secret"
+    ports:
+      - "3000:3000"
+    volumes:
+      - image_uploads:/app/uploads
+
+volumes:
+  db_data:
+  image_uploads:
