@@ -21,12 +21,14 @@ function detectPodmanSocket(): string | null {
   }
 }
 
+// Only auto-wire to Podman (and disable Ryuk) when no DOCKER_HOST is set and a
+// Podman machine socket is reachable — CI runners use real Docker and should
+// keep Ryuk enabled for reliable container cleanup.
 if (!process.env.DOCKER_HOST) {
   const socket = detectPodmanSocket();
   if (socket) {
     process.env.DOCKER_HOST = `unix://${socket}`;
+    process.env.TESTCONTAINERS_RYUK_DISABLED =
+      process.env.TESTCONTAINERS_RYUK_DISABLED ?? "true";
   }
 }
-
-process.env.TESTCONTAINERS_RYUK_DISABLED =
-  process.env.TESTCONTAINERS_RYUK_DISABLED ?? "true";
