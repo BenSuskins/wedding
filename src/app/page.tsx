@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import { Countdown } from "@/components/countdown";
 import { FaqAccordion } from "@/components/faq-accordion";
 import { Sprig } from "@/components/sprig";
 import { getContentBlockByKey } from "@/lib/content/content-block";
@@ -188,11 +189,17 @@ export default async function LandingPage() {
 
           {formattedWeddingDate ? (
             <p
-              className="mb-10 text-[length:clamp(1rem,0.95rem+0.25vw,1.125rem)] font-[600] tracking-[0.1em] text-[color:var(--color-peach)]"
+              className="mb-8 text-[length:clamp(1rem,0.95rem+0.25vw,1.125rem)] font-[600] tracking-[0.1em] text-[color:var(--color-peach)]"
               style={{ fontVariant: "small-caps" }}
             >
               <time dateTime={weddingDate?.toISOString()}>{formattedWeddingDate}</time>
             </p>
+          ) : null}
+
+          {weddingDate ? (
+            <div className="mb-10">
+              <Countdown targetIsoDate={weddingDate.toISOString()} />
+            </div>
           ) : null}
 
           {venues.length > 0 ? (
