@@ -23,10 +23,9 @@ test.describe("public site", () => {
     expect(response.status()).toBeLessThan(500);
   });
 
-  test("admin area redirects unauthenticated visitors", async ({ page }) => {
-    const response = await page.goto("/admin", { waitUntil: "domcontentloaded" });
-    expect(response?.status()).toBeLessThan(500);
-    await expect(page).not.toHaveURL(/\/admin$/);
+  test("admin area does not serve content to anonymous requests", async ({ request }) => {
+    const response = await request.get("/admin", { maxRedirects: 0 });
+    expect([302, 307]).toContain(response.status());
   });
 
   test("admin CSV export rejects unauthenticated requests", async ({ request }) => {
