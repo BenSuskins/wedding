@@ -300,7 +300,6 @@ export default async function LandingPage() {
                     color: "var(--color-cornflower)",
                     opacity: 0.85,
                     paddingTop: "0.1em",
-                    minWidth: 0,
                   }}
                 >
                   {formatEventTime(event.startsAt)}
@@ -423,7 +422,7 @@ export default async function LandingPage() {
                     <p
                       key={i}
                       className="max-w-[46ch] text-[length:clamp(1rem,0.95rem+0.25vw,1.125rem)] leading-[1.65] text-[color:var(--color-muted)]"
-                      style={{ textWrap: "pretty" } as React.CSSProperties}
+                      style={{ textWrap: "pretty", whiteSpace: "pre-line" } as React.CSSProperties}
                     >
                       {para.replace(/^#+\s*/gm, "").trim()}
                     </p>

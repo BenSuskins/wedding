@@ -87,7 +87,7 @@
       grid-template-columns: 1fr;
     }
     .landing-schedule-item {
-      grid-template-columns: 4rem 1px 1fr;
+      grid-template-columns: 1fr 1px auto;
       gap: 0 1.25rem;
     }
     .landing-venue-offset {
