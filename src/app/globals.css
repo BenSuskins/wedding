@@ -80,14 +80,11 @@
     .landing-hero-grid {
       grid-template-columns: 1fr;
     }
-    .landing-hero-img-col {
-      order: -1;
-    }
     .landing-two-col {
       grid-template-columns: 1fr;
     }
     .landing-schedule-item {
-      grid-template-columns: 1fr 1px auto;
+      grid-template-columns: 1fr 1px 5rem;
       gap: 0 1.25rem;
     }
     .landing-venue-offset {
