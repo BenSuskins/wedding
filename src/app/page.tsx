@@ -58,7 +58,7 @@ export default async function LandingPage() {
     getSiteSetting(prisma, "ceremony_image_path"),
     getSiteSetting(prisma, "reception_image_path"),
     listEvents(prisma),
-    getContentBlockByKey(prisma, "intro"),
+    getContentBlockByKey(prisma, "hero"),
     getContentBlockByKey(prisma, "travel"),
     getContentBlockByKey(prisma, "faq"),
   ]);
@@ -480,13 +480,6 @@ export default async function LandingPage() {
               Use the personal link in your invitation to let us know you are coming.
             </p>
           )}
-          <Link
-            href="/rsvp"
-            className="inline-block border border-[color:var(--color-cornflower)] bg-[color:var(--color-cornflower)] px-[2.2em] py-[0.85em] font-serif text-[length:clamp(1rem,0.95rem+0.25vw,1.125rem)] font-[500] tracking-[0.1em] text-[color:var(--color-paper)] no-underline transition-[background,color,transform] hover:-translate-y-0.5 hover:bg-[oklch(0.44_0.09_248)] hover:border-[oklch(0.44_0.09_248)]"
-            style={{ fontVariant: "small-caps" }}
-          >
-            Reply to your invitation
-          </Link>
           <p className="mt-5 text-[length:clamp(0.75rem,0.7rem+0.25vw,0.875rem)] italic text-[color:var(--color-muted)] opacity-70">
             The RSVP form is linked to your invitation. If you have lost your link, please get in
             touch directly.
