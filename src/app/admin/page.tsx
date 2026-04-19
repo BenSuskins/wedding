@@ -11,6 +11,7 @@ export default function AdminDashboardPage() {
       </header>
       <ul className="grid gap-4 sm:grid-cols-2">
         {[
+          { href: "/admin/invites", label: "Invites", hint: "Household links, guest lists, and token rotation." },
           { href: "/admin/content", label: "Content blocks", hint: "Hero, travel, FAQ, gifts, dress code." },
           { href: "/admin/events", label: "Events", hint: "Ceremony, dinner, and other wedding events." },
           { href: "/admin/settings", label: "Site settings", hint: "Site title, wedding date, RSVP deadline." },

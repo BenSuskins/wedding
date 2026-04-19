@@ -19,3 +19,11 @@ export function getAuthEnv(): {
     oidcClientSecret: requireEnv("OIDC_CLIENT_SECRET"),
   };
 }
+
+export function getInviteTokenSecret(): string {
+  return requireEnv("INVITE_TOKEN_SECRET");
+}
+
+export function getPublicBaseUrl(): string {
+  return process.env.PUBLIC_BASE_URL ?? "";
+}

@@ -9,6 +9,7 @@ export const runtime = "nodejs";
 
 const adminNav: ReadonlyArray<{ href: string; label: string }> = [
   { href: "/admin", label: "Dashboard" },
+  { href: "/admin/invites", label: "Invites" },
   { href: "/admin/content", label: "Content" },
   { href: "/admin/events", label: "Events" },
   { href: "/admin/settings", label: "Settings" },
