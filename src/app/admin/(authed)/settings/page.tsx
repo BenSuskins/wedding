@@ -27,6 +27,8 @@ export default async function AdminSettingsPage() {
   const weddingDate = byKey.get("wedding_date");
   const rsvpDeadline = byKey.get("rsvp_deadline");
   const heroImage = byKey.get("hero_image_path");
+  const ceremonyImage = byKey.get("ceremony_image_path");
+  const receptionImage = byKey.get("reception_image_path");
 
   return (
     <section className="mx-auto max-w-3xl space-y-6">
@@ -79,6 +81,30 @@ export default async function AdminSettingsPage() {
           heroImage && heroImage.key === "hero_image_path" ? heroImage.value.path : ""
         }
         updatedAt={heroImage?.updatedAt ?? null}
+      />
+
+      <SettingForm
+        settingKey="ceremony_image_path"
+        label="Ceremony venue image path"
+        inputType="text"
+        currentValue={
+          ceremonyImage && ceremonyImage.key === "ceremony_image_path"
+            ? ceremonyImage.value.path
+            : ""
+        }
+        updatedAt={ceremonyImage?.updatedAt ?? null}
+      />
+
+      <SettingForm
+        settingKey="reception_image_path"
+        label="Reception venue image path"
+        inputType="text"
+        currentValue={
+          receptionImage && receptionImage.key === "reception_image_path"
+            ? receptionImage.value.path
+            : ""
+        }
+        updatedAt={receptionImage?.updatedAt ?? null}
       />
     </section>
   );

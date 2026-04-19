@@ -5,7 +5,7 @@ import { useActionState } from "react";
 import { saveSettingAction, type SettingsFormState } from "./actions";
 
 export interface SettingFormProps {
-  settingKey: "site_title" | "wedding_date" | "rsvp_deadline" | "hero_image_path";
+  settingKey: "site_title" | "wedding_date" | "rsvp_deadline" | "hero_image_path" | "ceremony_image_path" | "reception_image_path";
   label: string;
   inputType: "text" | "datetime-local";
   currentValue: string;

@@ -33,6 +33,10 @@ function buildValue(key: SiteSettingKey, formData: FormData): unknown {
     }
     case "hero_image_path":
       return { path: String(formData.get("hero_image_path") ?? "") };
+    case "ceremony_image_path":
+      return { path: String(formData.get("ceremony_image_path") ?? "") };
+    case "reception_image_path":
+      return { path: String(formData.get("reception_image_path") ?? "") };
   }
 }
 

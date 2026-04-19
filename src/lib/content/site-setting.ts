@@ -10,6 +10,8 @@ export const SITE_SETTING_KEYS = [
   "rsvp_deadline",
   "site_title",
   "hero_image_path",
+  "ceremony_image_path",
+  "reception_image_path",
 ] as const;
 
 export type SiteSettingKey = (typeof SITE_SETTING_KEYS)[number];
@@ -19,6 +21,8 @@ export const siteSettingSchemas = {
   rsvp_deadline: z.object({ isoDate: z.iso.datetime() }),
   site_title: z.object({ title: z.string().trim().min(1).max(200) }),
   hero_image_path: z.object({ path: z.string().trim().min(1).max(500) }),
+  ceremony_image_path: z.object({ path: z.string().trim().min(1).max(500) }),
+  reception_image_path: z.object({ path: z.string().trim().min(1).max(500) }),
 } satisfies Record<SiteSettingKey, z.ZodTypeAny>;
 
 export type SiteSettingValue<K extends SiteSettingKey> = z.output<

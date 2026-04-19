@@ -1,38 +1,98 @@
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500;1,600&display=swap");
 @import "tailwindcss";
 
 @theme {
   --color-paper: #f6f1e7;
+  --color-paper-mid: #ede8dc;
   --color-ink: #2b241b;
-  --color-muted: #7a6f60;
-  --color-cornflower: #6b8cc7;
-  --color-peach: #e8a389;
-  --color-lavender: #b8a9cf;
-  --color-eucalyptus: #a3b39a;
+  --color-muted: #8c7b6b;
+  --color-cornflower: oklch(0.52 0.09 248);
+  --color-cornflower-pale: oklch(0.88 0.04 248);
+  --color-peach: oklch(0.76 0.09 48);
+  --color-lavender: oklch(0.74 0.07 288);
+  --color-eucalyptus: oklch(0.52 0.09 150);
 
-  --font-serif: "EB Garamond", Georgia, "Times New Roman", serif;
+  --font-serif: "Cormorant Garamond", Georgia, "Times New Roman", serif;
   --font-sans: "Inter", system-ui, -apple-system, sans-serif;
 }
 
 @layer base {
   html {
     color-scheme: light;
+    scroll-behavior: smooth;
   }
 
   body {
     background-color: var(--color-paper);
     color: var(--color-ink);
     font-family: var(--font-serif);
+    font-size: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+    font-weight: 400;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
     font-feature-settings: "kern", "liga", "onum";
     text-rendering: optimizeLegibility;
+  }
+
+  img {
+    display: block;
+    max-width: 100%;
   }
 
   h1, h2, h3 {
     font-weight: 400;
     letter-spacing: -0.01em;
+    line-height: 1.15;
+  }
+
+  a {
+    color: var(--color-cornflower);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+  }
+
+  a:focus-visible,
+  button:focus-visible {
+    outline: 2px solid var(--color-cornflower);
+    outline-offset: 3px;
   }
 
   :where(time, .tabular) {
     font-variant-numeric: tabular-nums;
+  }
+
+  /* Landing page responsive grid overrides */
+  .landing-hero-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .landing-two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .landing-schedule-item {
+    display: grid;
+    grid-template-columns: 1fr 1px 6rem;
+    gap: 0 2.5rem;
+  }
+
+  @media (max-width: 768px) {
+    .landing-hero-grid {
+      grid-template-columns: 1fr;
+    }
+    .landing-hero-img-col {
+      order: -1;
+    }
+    .landing-two-col {
+      grid-template-columns: 1fr;
+    }
+    .landing-schedule-item {
+      grid-template-columns: 4rem 1px 1fr;
+      gap: 0 1.25rem;
+    }
+    .landing-venue-offset {
+      margin-top: 0 !important;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
