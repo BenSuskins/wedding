@@ -32,12 +32,20 @@ export default async function EditEventPage({ params }: { params: Promise<Params
     <section className="mx-auto max-w-3xl">
       <header className="flex items-center justify-between">
         <h2 className="font-serif text-3xl">Edit event</h2>
-        <Link
-          href="/admin/events"
-          className="text-sm uppercase tracking-[0.2em] text-[color:var(--color-muted)] hover:text-[color:var(--color-ink)]"
-        >
-          Back
-        </Link>
+        <div className="flex items-center gap-4 text-sm uppercase tracking-[0.2em]">
+          <Link
+            href={`/admin/events/${id}/menu`}
+            className="text-[color:var(--color-muted)] hover:text-[color:var(--color-ink)]"
+          >
+            Menu
+          </Link>
+          <Link
+            href="/admin/events"
+            className="text-[color:var(--color-muted)] hover:text-[color:var(--color-ink)]"
+          >
+            Back
+          </Link>
+        </div>
       </header>
       <EventForm action={boundAction} initial={event} submitLabel="Save" />
     </section>
