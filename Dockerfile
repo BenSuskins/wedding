@@ -30,7 +30,8 @@ WORKDIR /app
 ENV NODE_ENV=production \
     NEXT_TELEMETRY_DISABLED=1 \
     PORT=3000 \
-    HOSTNAME=0.0.0.0
+    HOSTNAME=0.0.0.0 \
+    NODE_PATH=/app/prisma-cli/node_modules
 
 RUN addgroup --system --gid 1001 nodejs \
  && adduser  --system --uid 1001 --ingroup nodejs nextjs
@@ -40,9 +41,10 @@ COPY --from=builder    --chown=nextjs:nodejs /app/.next/standalone   ./
 COPY --from=builder    --chown=nextjs:nodejs /app/.next/static       ./.next/static
 COPY --from=builder    --chown=nextjs:nodejs /app/prisma             ./prisma
 COPY --from=builder    --chown=nextjs:nodejs /app/prisma.config.ts   ./prisma.config.ts
-# Merge the prisma CLI's node_modules tree into the app's so prisma.config.ts
-# can resolve `prisma/config` and its transitive deps (effect, etc.) at startup.
-COPY --from=prisma-cli --chown=nextjs:nodejs /opt/prisma-cli/node_modules/ ./node_modules/
+# Keep the prisma CLI in its own prefix to avoid clobbering the Next standalone
+# node_modules tree. The entrypoint invokes prisma by absolute path, and
+# NODE_PATH exposes its deps (prisma/config, effect, ...) to prisma.config.ts.
+COPY --from=prisma-cli --chown=nextjs:nodejs /opt/prisma-cli         /app/prisma-cli
 COPY --chown=nextjs:nodejs docker/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 

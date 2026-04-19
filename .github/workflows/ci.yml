@@ -66,6 +66,29 @@ jobs:
   e2e:
     name: e2e (Playwright)
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_PASSWORD: wedding
+          POSTGRES_USER: wedding
+          POSTGRES_DB: wedding
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgres://wedding:wedding@localhost:5432/wedding
+      INVITE_TOKEN_SECRET: ci-invite-secret-ci-invite-secret-ci
+      AUTH_SECRET: ci-auth-secret-ci-auth-secret-ci-auth
+      NEXTAUTH_URL: http://localhost:3000
+      OIDC_ISSUER: http://authelia.invalid
+      OIDC_CLIENT_ID: ci-client
+      OIDC_CLIENT_SECRET: ci-client-secret
+      PUBLIC_BASE_URL: http://localhost:3000
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -76,6 +99,9 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+
+      - name: Apply Prisma migrations
+        run: pnpm exec prisma migrate deploy
 
       - name: Restore Playwright browsers cache
         id: playwright-cache
