@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
 
@@ -5,6 +6,13 @@ import { auth, signOut } from "@/server/auth";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
+
+const adminNav: ReadonlyArray<{ href: string; label: string }> = [
+  { href: "/admin", label: "Dashboard" },
+  { href: "/admin/content", label: "Content" },
+  { href: "/admin/events", label: "Events" },
+  { href: "/admin/settings", label: "Settings" },
+];
 
 export default async function AdminLayout({ children }: { children: ReactNode }) {
   const session = await auth();
@@ -35,6 +43,20 @@ export default async function AdminLayout({ children }: { children: ReactNode })
           </div>
         </form>
       </header>
+      <nav className="border-b border-[color:var(--color-ink)]/10 px-6">
+        <ul className="flex gap-6 text-sm">
+          {adminNav.map((item) => (
+            <li key={item.href}>
+              <Link
+                href={item.href}
+                className="inline-block py-3 uppercase tracking-[0.2em] text-[color:var(--color-muted)] hover:text-[color:var(--color-ink)]"
+              >
+                {item.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </nav>
       <main className="px-6 py-8">{children}</main>
     </div>
   );
