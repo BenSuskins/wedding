@@ -15,7 +15,7 @@ const SECURITY_HEADERS: ReadonlyArray<{ key: string; value: string }> = [
       "default-src 'self'",
       "img-src 'self' data: blob:",
       "style-src 'self' 'unsafe-inline'",
-      "script-src 'self'",
+      "script-src 'self' 'unsafe-inline'",
       "font-src 'self' data:",
       "connect-src 'self'",
       "frame-ancestors 'none'",
