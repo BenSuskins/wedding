@@ -16,11 +16,13 @@ const adminNav: ReadonlyArray<{ href: string; label: string }> = [
   { href: "/admin/export", label: "Export" },
 ];
 
-export default async function AdminLayout({ children }: { children: ReactNode }) {
+export default async function AdminAuthedLayout({ children }: { children: ReactNode }) {
   const session = await auth();
   if (!session?.user) {
     redirect("/admin/sign-in");
   }
+
+  const user = session.user;
 
   return (
     <div className="min-h-screen bg-[color:var(--color-paper)] text-[color:var(--color-ink)]">
@@ -34,7 +36,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
         >
           <div className="flex items-center gap-4 text-sm">
             <span className="text-[color:var(--color-muted)]">
-              {session.user.email ?? session.user.name ?? session.user.oidcSub ?? "Admin"}
+              {user.email ?? user.name ?? user.oidcSub ?? "Admin"}
             </span>
             <button
               type="submit"
