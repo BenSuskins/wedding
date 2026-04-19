@@ -23,6 +23,12 @@
     color: var(--color-ink);
     font-family: var(--font-serif);
     font-feature-settings: "kern", "liga", "onum";
+    text-rendering: optimizeLegibility;
+  }
+
+  h1, h2, h3 {
+    font-weight: 400;
+    letter-spacing: -0.01em;
   }
 
   :where(time, .tabular) {
