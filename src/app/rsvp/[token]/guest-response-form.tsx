@@ -4,11 +4,8 @@ import { useActionState, useId, useState } from "react";
 
 import type { MenuCourseRecord } from "@/lib/rsvp/menu";
 
-import {
-  emptyRsvpActionState,
-  submitRsvpAction,
-  type RsvpActionState,
-} from "./actions";
+import { emptyRsvpActionState, type RsvpActionState } from "./rsvp-action-state";
+import { submitRsvpAction } from "./actions";
 
 export interface ExistingResponse {
   attending: boolean;

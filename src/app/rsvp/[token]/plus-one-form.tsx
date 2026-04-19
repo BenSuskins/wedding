@@ -2,11 +2,8 @@
 
 import { useActionState } from "react";
 
-import {
-  addPlusOneAction,
-  emptyRsvpActionState,
-  type RsvpActionState,
-} from "./actions";
+import { emptyRsvpActionState, type RsvpActionState } from "./rsvp-action-state";
+import { addPlusOneAction } from "./actions";
 
 interface PlusOneFormProps {
   token: string;

@@ -16,12 +16,7 @@ import {
 import { getInviteTokenSecret } from "@/server/env";
 import { getPrismaClient } from "@/server/db";
 
-export interface RsvpActionState {
-  error?: string;
-  notice?: string;
-}
-
-const initialState: RsvpActionState = {};
+import { type RsvpActionState } from "./rsvp-action-state";
 
 function buildSigner() {
   return createHmacInviteTokenSigner(getInviteTokenSecret());
@@ -216,4 +211,3 @@ export async function addPlusOneAction(
   return { notice: "Plus-one added." };
 }
 
-export { initialState as emptyRsvpActionState };
