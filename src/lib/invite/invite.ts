@@ -96,6 +96,7 @@ export function listInvites(
 ): ResultAsync<InviteListItem[], InviteError> {
   return ResultAsync.fromPromise(
     prisma.invite.findMany({
+      where: { deletedAt: null },
       orderBy: { createdAt: "asc" },
       include: {
         guests: { where: { deletedAt: null }, select: { id: true } },
@@ -133,7 +134,9 @@ export function getInviteById(
       },
     }),
     unexpectedError,
-  ).andThen((row) => (row ? ok(row) : err(notFoundError("invite", id))));
+  ).andThen((row) =>
+    row && !row.deletedAt ? ok(row) : err(notFoundError("invite", id)),
+  );
 }
 
 export function getInviteByToken(
@@ -161,7 +164,7 @@ export function getInviteByToken(
     }),
     unexpectedError,
   ).andThen((row) => {
-    if (!row) return err(notFoundError("invite", inviteId));
+    if (!row || row.deletedAt) return err(notFoundError("invite", inviteId));
     if (row.tokenVersion !== tokenVersion) {
       return err({ kind: "token_version_stale" } as const);
     }
@@ -261,7 +264,9 @@ export function deleteInvite(
   id: string,
 ): ResultAsync<void, InviteError> {
   return ResultAsync.fromPromise(
-    prisma.invite.delete({ where: { id } }).then(() => undefined),
+    prisma.invite
+      .update({ where: { id }, data: { deletedAt: new Date() } })
+      .then(() => undefined),
     (cause) =>
       isPrismaKnownNotFound(cause) ? notFoundError("invite", id) : unexpectedError(cause),
   );

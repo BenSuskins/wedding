@@ -67,7 +67,7 @@ export function loadRsvpStateByToken(
     unexpectedError,
   )
     .andThen((invite) => {
-      if (!invite) return err(notFoundError("invite", inviteId));
+      if (!invite || invite.deletedAt) return err(notFoundError("invite", inviteId));
       if (invite.tokenVersion !== tokenVersion) {
         return err({ kind: "token_version_stale" as const });
       }

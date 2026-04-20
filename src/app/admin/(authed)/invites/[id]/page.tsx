@@ -122,6 +122,24 @@ export default async function InviteDetailPage({ params }: { params: Promise<Par
         <GuestsManager inviteId={invite.id} guests={invite.guests} />
       </section>
 
+      {(invite.allergiesText || invite.songRequestText) ? (
+        <section className="rounded border border-[color:var(--color-ink)]/10 p-5 space-y-3">
+          <h3 className="font-serif text-xl">Dietary &amp; Song Request</h3>
+          {invite.allergiesText ? (
+            <div>
+              <p className="text-xs uppercase tracking-[0.2em] text-[color:var(--color-muted)]">Dietary notes</p>
+              <p className="mt-1 text-sm">{invite.allergiesText}</p>
+            </div>
+          ) : null}
+          {invite.songRequestText ? (
+            <div>
+              <p className="text-xs uppercase tracking-[0.2em] text-[color:var(--color-muted)]">Song request</p>
+              <p className="mt-1 text-sm">{invite.songRequestText}</p>
+            </div>
+          ) : null}
+        </section>
+      ) : null}
+
       <section>
         <h3 className="font-serif text-xl text-red-800">Danger zone</h3>
         <form action={deleteInviteAction.bind(null, invite.id)} className="mt-3">
