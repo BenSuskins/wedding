@@ -182,7 +182,7 @@ describe("invite service", () => {
     expect(malformed._unsafeUnwrapErr().kind).toBe("token_malformed");
   });
 
-  it("deletes an invite (cascades to guests and allowances)", async () => {
+  it("soft-deletes an invite (sets deletedAt, hides from list and lookup)", async () => {
     const event = await createEvent(harness, "ceremony");
     const invite = (
       await createInvite(harness.prisma, {
@@ -194,15 +194,14 @@ describe("invite service", () => {
     const deleted = await deleteInvite(harness.prisma, invite.id);
     expect(deleted.isOk()).toBe(true);
 
-    const guestCount = await harness.prisma.guest.count({ where: { inviteId: invite.id } });
-    const allowanceCount = await harness.prisma.inviteEventAllowance.count({
-      where: { inviteId: invite.id },
-    });
-    expect(guestCount).toBe(0);
-    expect(allowanceCount).toBe(0);
+    const row = await harness.prisma.invite.findUnique({ where: { id: invite.id } });
+    expect(row?.deletedAt).not.toBeNull();
 
-    const repeat = await deleteInvite(harness.prisma, invite.id);
-    expect(repeat.isErr()).toBe(true);
-    expect(repeat._unsafeUnwrapErr().kind).toBe("not_found");
+    const fetched = await getInviteById(harness.prisma, invite.id);
+    expect(fetched.isErr()).toBe(true);
+    expect(fetched._unsafeUnwrapErr().kind).toBe("not_found");
+
+    const listed = await listInvites(harness.prisma);
+    expect(listed._unsafeUnwrap().find((i) => i.id === invite.id)).toBeUndefined();
   });
 });
