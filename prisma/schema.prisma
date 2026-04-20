@@ -26,6 +26,8 @@ model Invite {
   rsvpMode          RsvpMode               @default(household)
   plusOneAllowed    Boolean                @default(false)
   adminNotes        String?
+  allergiesText     String?
+  songRequestText   String?
   createdAt         DateTime               @default(now())
   updatedAt         DateTime               @updatedAt
 
@@ -126,8 +128,6 @@ model RsvpResponse {
   guestId           String
   eventId           String
   attending         Boolean
-  allergiesText     String?
-  songRequestText   String?
   submittedAt       DateTime            @default(now())
   updatedAt         DateTime            @updatedAt
   deletedAt         DateTime?
@@ -157,7 +157,7 @@ model RsvpMenuSelection {
 // Append-only audit log. The DB grants (set in a migration) revoke UPDATE/DELETE for the app role.
 model RsvpAuditLog {
   id          String          @id @default(cuid())
-  inviteId    String
+  inviteId    String?
   guestId     String?
   eventId     String?
   action      String
@@ -166,7 +166,7 @@ model RsvpAuditLog {
   actorRef    String
   occurredAt  DateTime        @default(now())
 
-  invite      Invite          @relation(fields: [inviteId], references: [id], onDelete: Restrict)
+  invite      Invite?         @relation(fields: [inviteId], references: [id], onDelete: SetNull)
   guest       Guest?          @relation(fields: [guestId], references: [id], onDelete: SetNull)
   event       Event?          @relation(fields: [eventId], references: [id], onDelete: SetNull)
 

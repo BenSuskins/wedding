@@ -7,6 +7,7 @@ import { getInviteTokenSecret } from "@/server/env";
 import { getPrismaClient } from "@/server/db";
 
 import { GuestResponseForm } from "./guest-response-form";
+import { InvitePreferencesForm } from "./invite-preferences-form";
 import { PlusOneForm } from "./plus-one-form";
 
 export const dynamic = "force-dynamic";
@@ -84,6 +85,22 @@ export default async function RsvpPage({ params }: { params: Promise<Params> }) 
         </div>
       )}
 
+      <section className="space-y-3">
+        <h3 className="font-serif text-xl">Dietary &amp; Song Request</h3>
+        <p className="text-sm text-[color:var(--color-muted)]">
+          Let us know about any allergies or dietary requirements, and feel free to suggest a song
+          for the reception.
+        </p>
+        <InvitePreferencesForm
+          token={token}
+          existing={{
+            allergiesText: state.invite.allergiesText,
+            songRequestText: state.invite.songRequestText,
+          }}
+          disabled={locked}
+        />
+      </section>
+
       {hasPlusOneSlot && !plusOneAlreadyAdded ? (
         <section className="space-y-3">
           <h3 className="font-serif text-xl">Plus-one</h3>
@@ -102,22 +119,12 @@ function findExisting(
   state: RsvpLoadedState,
   guestId: string,
   eventId: string,
-): {
-  attending: boolean;
-  allergiesText: string | null;
-  songRequestText: string | null;
-  selections: ReadonlyArray<{ courseId: string; optionId: string }>;
-} | null {
+): { attending: boolean; selections: ReadonlyArray<{ courseId: string; optionId: string }> } | null {
   const response = state.responses.find(
     (entry) => entry.guestId === guestId && entry.eventId === eventId,
   );
   if (!response) return null;
-  return {
-    attending: response.attending,
-    allergiesText: response.allergiesText,
-    songRequestText: response.songRequestText,
-    selections: response.selections,
-  };
+  return { attending: response.attending, selections: response.selections };
 }
 
 function DeadlineNotice({ state }: { state: RsvpLoadedState }) {

@@ -60,10 +60,6 @@ function GuestRow({ inviteId, guest }: { inviteId: string; guest: GuestRecord })
         aria-label="Order"
         className="w-20 rounded border border-[color:var(--color-ink)]/20 bg-white px-3 py-2"
       />
-      <label className="flex items-center gap-2 text-sm text-[color:var(--color-muted)]">
-        <input type="checkbox" name="isPlusOne" defaultChecked={guest.isPlusOne} />
-        +1
-      </label>
       <button
         type="submit"
         disabled={isPending}
@@ -100,10 +96,6 @@ function AddGuest({ inviteId, nextOrderIndex }: { inviteId: string; nextOrderInd
         className="flex-1 rounded border border-[color:var(--color-ink)]/20 bg-white px-3 py-2"
       />
       <input type="hidden" name="orderIndex" value={nextOrderIndex} />
-      <label className="flex items-center gap-2 text-sm text-[color:var(--color-muted)]">
-        <input type="checkbox" name="isPlusOne" />
-        +1
-      </label>
       <button
         type="submit"
         disabled={isPending}

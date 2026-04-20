@@ -31,6 +31,8 @@ export interface InviteRecord {
   rsvpMode: RsvpMode;
   plusOneAllowed: boolean;
   adminNotes: string | null;
+  allergiesText: string | null;
+  songRequestText: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -47,7 +49,6 @@ export interface InviteListItem extends InviteRecord {
 
 const guestInputSchema = z.object({
   displayName: z.string().trim().min(1, "display name is required").max(200),
-  isPlusOne: z.boolean().default(false),
   orderIndex: z.coerce.number().int().min(0).default(0),
 });
 
@@ -61,6 +62,17 @@ const createInviteSchema = z.object({
     .default(null),
   guests: z.array(guestInputSchema).min(1, "at least one guest is required"),
   eventIds: z.array(z.string().trim().min(1)).default([]),
+});
+
+const updatePreferencesSchema = z.object({
+  allergiesText: z
+    .union([z.string(), z.null()])
+    .transform((value) => (typeof value === "string" ? value.trim() : value))
+    .transform((value) => (value === "" ? null : value)),
+  songRequestText: z
+    .union([z.string(), z.null()])
+    .transform((value) => (typeof value === "string" ? value.trim() : value))
+    .transform((value) => (value === "" ? null : value)),
 });
 
 const updateCoreSchema = z.object({
@@ -77,6 +89,7 @@ const guestUpdateSchema = guestInputSchema;
 export type CreateInviteInput = z.input<typeof createInviteSchema>;
 export type UpdateInviteCoreInput = z.input<typeof updateCoreSchema>;
 export type GuestInput = z.input<typeof guestInputSchema>;
+export type UpdateInvitePreferencesInput = z.input<typeof updatePreferencesSchema>;
 
 export function listInvites(
   prisma: PrismaClient,
@@ -97,6 +110,8 @@ export function listInvites(
       rsvpMode: row.rsvpMode,
       plusOneAllowed: row.plusOneAllowed,
       adminNotes: row.adminNotes,
+      allergiesText: row.allergiesText,
+      songRequestText: row.songRequestText,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
       activeGuestCount: row.guests.length,
@@ -168,7 +183,6 @@ export function createInvite(
           guests: {
             create: data.guests.map((guest, index) => ({
               displayName: guest.displayName,
-              isPlusOne: guest.isPlusOne,
               orderIndex: guest.orderIndex || index,
             })),
           },
@@ -264,7 +278,6 @@ export function addGuest(
         data: {
           inviteId,
           displayName: data.displayName,
-          isPlusOne: data.isPlusOne,
           orderIndex: data.orderIndex,
         },
       }),
@@ -284,12 +297,25 @@ export function updateGuest(
         where: { id: guestId },
         data: {
           displayName: data.displayName,
-          isPlusOne: data.isPlusOne,
           orderIndex: data.orderIndex,
         },
       }),
       (cause) =>
         isPrismaKnownNotFound(cause) ? notFoundError("guest", guestId) : unexpectedError(cause),
+    ),
+  );
+}
+
+export function updateInvitePreferences(
+  prisma: PrismaClient,
+  id: string,
+  input: UpdateInvitePreferencesInput,
+): ResultAsync<InviteRecord, InviteError> {
+  return parseWithSchema(updatePreferencesSchema, input).asyncAndThen((data) =>
+    ResultAsync.fromPromise(
+      prisma.invite.update({ where: { id }, data }),
+      (cause) =>
+        isPrismaKnownNotFound(cause) ? notFoundError("invite", id) : unexpectedError(cause),
     ),
   );
 }

@@ -8,6 +8,7 @@ import { createHmacInviteTokenSigner } from "@/lib/invite-token";
 import { getRsvpDeadlineStatus } from "@/lib/rsvp/deadline";
 import { addPlusOneGuest } from "@/lib/rsvp/plus-one";
 import { getRsvpRateLimiters } from "@/lib/rsvp/rate-limiter-instance";
+import { updateInvitePreferences } from "@/lib/invite/invite";
 import {
   submitRsvp,
   type MenuSelectionInput,
@@ -138,16 +139,12 @@ export async function submitRsvpAction(
   const invite = resolution.invite;
 
   const attending = formData.get("attending") === "yes";
-  const allergiesRaw = formData.get("allergiesText");
-  const songRaw = formData.get("songRequestText");
 
   const input: RsvpSubmitInput = {
     inviteId: invite.id,
     guestId,
     eventId,
     attending,
-    allergiesText: typeof allergiesRaw === "string" ? allergiesRaw : null,
-    songRequestText: typeof songRaw === "string" ? songRaw : null,
     menuSelections: attending ? parseMenuSelections(formData, courseIds) : [],
     actor: { kind: "guest_token", ref: invite.id },
   };
@@ -171,6 +168,43 @@ export async function submitRsvpAction(
         ? "RSVP saved. You can edit it anytime before the deadline."
         : "RSVP updated.",
   };
+}
+
+export async function updateInvitePreferencesAction(
+  token: string,
+  _previous: RsvpActionState,
+  formData: FormData,
+): Promise<RsvpActionState> {
+  const rateGate = await enforceRateLimit(token);
+  if (!rateGate.ok) return { error: rateGate.error };
+
+  const resolution = await resolveInviteFromToken(token);
+  if (!resolution.ok) return { error: resolution.error };
+  const invite = resolution.invite;
+
+  const prisma = getPrismaClient();
+  const deadlineResult = await getRsvpDeadlineStatus(prisma, systemClock);
+  if (deadlineResult.isErr()) {
+    return { error: "We couldn't verify the RSVP deadline. Please try again." };
+  }
+  if (deadlineResult.value.kind === "locked") {
+    return { error: "RSVPs are closed." };
+  }
+
+  const allergiesRaw = formData.get("allergiesText");
+  const songRaw = formData.get("songRequestText");
+
+  const result = await updateInvitePreferences(prisma, invite.id, {
+    allergiesText: typeof allergiesRaw === "string" ? allergiesRaw : null,
+    songRequestText: typeof songRaw === "string" ? songRaw : null,
+  });
+
+  if (result.isErr()) {
+    return { error: "Something went wrong saving your preferences." };
+  }
+
+  revalidatePath(`/rsvp/${token}`);
+  return { notice: "Saved." };
 }
 
 export async function addPlusOneAction(

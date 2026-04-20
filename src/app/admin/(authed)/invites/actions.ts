@@ -34,7 +34,6 @@ function parseGuestsJson(raw: FormDataEntryValue | null): CreateInviteInput["gue
         if (!displayName.trim()) return null;
         return {
           displayName: displayName.trim(),
-          isPlusOne: Boolean(record.isPlusOne),
           orderIndex: typeof record.orderIndex === "number" ? record.orderIndex : index,
         };
       })
@@ -146,7 +145,6 @@ export async function addGuestAction(
 ): Promise<GuestFormState> {
   const result = await addGuest(getPrismaClient(), inviteId, {
     displayName: String(formData.get("displayName") ?? ""),
-    isPlusOne: formData.get("isPlusOne") === "on",
     orderIndex: Number(formData.get("orderIndex") ?? 0),
   });
   if (result.isErr()) {
@@ -167,7 +165,6 @@ export async function updateGuestAction(
 ): Promise<GuestFormState> {
   const result = await updateGuest(getPrismaClient(), guestId, {
     displayName: String(formData.get("displayName") ?? ""),
-    isPlusOne: formData.get("isPlusOne") === "on",
     orderIndex: Number(formData.get("orderIndex") ?? 0),
   });
   if (result.isErr()) {

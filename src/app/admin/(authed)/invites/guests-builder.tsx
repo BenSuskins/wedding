@@ -4,11 +4,10 @@ import { useState } from "react";
 
 interface DraftGuest {
   displayName: string;
-  isPlusOne: boolean;
 }
 
 export function GuestsBuilder() {
-  const [guests, setGuests] = useState<DraftGuest[]>([{ displayName: "", isPlusOne: false }]);
+  const [guests, setGuests] = useState<DraftGuest[]>([{ displayName: "" }]);
 
   const update = (index: number, patch: Partial<DraftGuest>) => {
     setGuests((prev) => prev.map((guest, i) => (i === index ? { ...guest, ...patch } : guest)));
@@ -17,7 +16,7 @@ export function GuestsBuilder() {
     setGuests((prev) => prev.filter((_, i) => i !== index));
   };
   const add = () => {
-    setGuests((prev) => [...prev, { displayName: "", isPlusOne: false }]);
+    setGuests((prev) => [...prev, { displayName: "" }]);
   };
 
   const serialised = JSON.stringify(
@@ -25,7 +24,6 @@ export function GuestsBuilder() {
       .filter((guest) => guest.displayName.trim() !== "")
       .map((guest, index) => ({
         displayName: guest.displayName.trim(),
-        isPlusOne: guest.isPlusOne,
         orderIndex: index,
       })),
   );
@@ -44,14 +42,6 @@ export function GuestsBuilder() {
               onChange={(event) => update(index, { displayName: event.target.value })}
               className="flex-1 rounded border border-[color:var(--color-ink)]/20 bg-white px-3 py-2"
             />
-            <label className="flex items-center gap-2 text-sm text-[color:var(--color-muted)]">
-              <input
-                type="checkbox"
-                checked={guest.isPlusOne}
-                onChange={(event) => update(index, { isPlusOne: event.target.checked })}
-              />
-              +1
-            </label>
             {guests.length > 1 ? (
               <button
                 type="button"

@@ -41,10 +41,10 @@ export function Countdown({ targetIsoDate }: CountdownProps) {
   ];
 
   return (
-    <dl className="flex flex-wrap justify-center gap-6 sm:gap-10" aria-label="Countdown">
+    <dl className="flex flex-wrap justify-center gap-6 sm:justify-start sm:gap-10" aria-label="Countdown">
       {cells.map((cell) => (
         <div key={cell.label} className="flex flex-col items-center">
-          <dd className="tabular font-serif text-4xl font-light sm:text-5xl">{cell.value}</dd>
+          <dd className="tabular font-serif text-3xl font-light sm:text-4xl">{cell.value}</dd>
           <dt className="mt-1 text-[0.65rem] uppercase tracking-[0.3em] text-[color:var(--color-muted)]">
             {cell.label}
           </dt>

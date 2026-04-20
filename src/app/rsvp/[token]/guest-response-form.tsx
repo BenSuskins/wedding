@@ -9,8 +9,6 @@ import { submitRsvpAction } from "./actions";
 
 export interface ExistingResponse {
   attending: boolean;
-  allergiesText: string | null;
-  songRequestText: string | null;
   selections: ReadonlyArray<{ courseId: string; optionId: string }>;
 }
 
@@ -116,33 +114,6 @@ export function GuestResponseForm({
               ))}
             </div>
           ) : null}
-
-          <label className="block text-sm">
-            <span className="block text-xs uppercase tracking-[0.2em] text-[color:var(--color-muted)]">
-              Allergies or dietary notes
-            </span>
-            <textarea
-              name="allergiesText"
-              defaultValue={existing?.allergiesText ?? ""}
-              rows={2}
-              disabled={disabled}
-              className="mt-1 w-full rounded border border-[color:var(--color-ink)]/20 bg-white px-3 py-2"
-            />
-          </label>
-
-          <label className="block text-sm">
-            <span className="block text-xs uppercase tracking-[0.2em] text-[color:var(--color-muted)]">
-              Song request
-            </span>
-            <input
-              type="text"
-              name="songRequestText"
-              defaultValue={existing?.songRequestText ?? ""}
-              disabled={disabled}
-              className="mt-1 w-full rounded border border-[color:var(--color-ink)]/20 bg-white px-3 py-2"
-              placeholder="Optional"
-            />
-          </label>
         </div>
       ) : null}
 

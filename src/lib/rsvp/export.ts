@@ -116,8 +116,8 @@ export function buildRsvpExportRows(
                 ? "yes"
                 : "no"
               : "no_response",
-            allergiesText: response?.allergiesText ?? null,
-            songRequestText: response?.songRequestText ?? null,
+            allergiesText: invite.allergiesText,
+            songRequestText: invite.songRequestText,
             menuSelections: menuSelections ?? null,
             submittedAt: response?.submittedAt ?? null,
             updatedAt: response?.updatedAt ?? null,

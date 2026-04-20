@@ -58,8 +58,6 @@ describe("prisma schema contract", () => {
         guestId: firstGuest.id,
         eventId: event.id,
         attending: true,
-        allergiesText: "peanuts",
-        songRequestText: "Take On Me",
       },
     });
 

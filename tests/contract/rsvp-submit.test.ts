@@ -78,8 +78,6 @@ describe("rsvp submit service", () => {
         guestId: guest.id,
         eventId: event.id,
         attending: true,
-        allergiesText: "peanuts",
-        songRequestText: "Into My Arms",
         menuSelections: [{ courseId: course.id, optionId: option.id }],
         actor: { kind: "guest_token", ref: invite.id },
       },
@@ -95,7 +93,6 @@ describe("rsvp submit service", () => {
       include: { menuSelections: true },
     });
     expect(stored.attending).toBe(true);
-    expect(stored.allergiesText).toBe("peanuts");
     expect(stored.menuSelections).toHaveLength(1);
 
     const auditRows = await harness.prisma.rsvpAuditLog.findMany({
@@ -128,8 +125,6 @@ describe("rsvp submit service", () => {
         guestId: guest.id,
         eventId: event.id,
         attending: true,
-        allergiesText: null,
-        songRequestText: null,
         menuSelections: [],
         actor: { kind: "guest_token", ref: invite.id },
       },
@@ -144,8 +139,6 @@ describe("rsvp submit service", () => {
         guestId: guest.id,
         eventId: event.id,
         attending: false,
-        allergiesText: null,
-        songRequestText: null,
         menuSelections: [],
         actor: { kind: "guest_token", ref: invite.id },
       },
@@ -182,8 +175,6 @@ describe("rsvp submit service", () => {
         guestId: invite.guests[0]!.id,
         eventId: event.id,
         attending: true,
-        allergiesText: null,
-        songRequestText: null,
         menuSelections: [],
         actor: { kind: "guest_token", ref: invite.id },
       },
@@ -213,8 +204,6 @@ describe("rsvp submit service", () => {
         guestId: invite.guests[0]!.id,
         eventId: other.id,
         attending: true,
-        allergiesText: null,
-        songRequestText: null,
         menuSelections: [],
         actor: { kind: "guest_token", ref: invite.id },
       },
@@ -254,8 +243,6 @@ describe("rsvp submit service", () => {
         guestId: invite.guests[0]!.id,
         eventId: event.id,
         attending: true,
-        allergiesText: null,
-        songRequestText: null,
         menuSelections: [{ courseId: foreignCourse.id, optionId: foreignOption.id }],
         actor: { kind: "guest_token", ref: invite.id },
       },
@@ -340,8 +327,6 @@ describe("rsvp submit service", () => {
         guestId: invite.guests[0]!.id,
         eventId: event.id,
         attending: true,
-        allergiesText: null,
-        songRequestText: null,
         menuSelections: [],
         actor: { kind: "guest_token", ref: invite.id },
       },

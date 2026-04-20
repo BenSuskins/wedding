@@ -22,8 +22,6 @@ export interface RsvpResponseRecord {
   guestId: string;
   eventId: string;
   attending: boolean;
-  allergiesText: string | null;
-  songRequestText: string | null;
   submittedAt: Date;
   updatedAt: Date;
   selections: RsvpMenuSelectionRecord[];
@@ -143,8 +141,6 @@ export function loadRsvpStateByToken(
           guestId: row.guestId,
           eventId: row.eventId,
           attending: row.attending,
-          allergiesText: row.allergiesText,
-          songRequestText: row.songRequestText,
           submittedAt: row.submittedAt,
           updatedAt: row.updatedAt,
           selections: row.menuSelections.map((selection) => ({
@@ -162,6 +158,8 @@ export function loadRsvpStateByToken(
             rsvpMode: invite.rsvpMode,
             plusOneAllowed: invite.plusOneAllowed,
             adminNotes: invite.adminNotes,
+            allergiesText: invite.allergiesText,
+            songRequestText: invite.songRequestText,
             createdAt: invite.createdAt,
             updatedAt: invite.updatedAt,
           },

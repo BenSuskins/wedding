@@ -24,8 +24,6 @@ export interface RsvpSubmitInput {
   guestId: string;
   eventId: string;
   attending: boolean;
-  allergiesText: string | null;
-  songRequestText: string | null;
   menuSelections: MenuSelectionInput[];
   actor: RsvpSubmitActor;
 }
@@ -48,14 +46,6 @@ const submitSchema = z.object({
   guestId: z.string().trim().min(1),
   eventId: z.string().trim().min(1),
   attending: z.boolean(),
-  allergiesText: z
-    .union([z.string(), z.null()])
-    .transform((value) => (typeof value === "string" ? value.trim() : value))
-    .transform((value) => (value === "" ? null : value)),
-  songRequestText: z
-    .union([z.string(), z.null()])
-    .transform((value) => (typeof value === "string" ? value.trim() : value))
-    .transform((value) => (value === "" ? null : value)),
   menuSelections: z.array(menuSelectionSchema).default([]),
   actor: z.object({
     kind: z.enum(["guest_token", "admin"]),
@@ -160,13 +150,9 @@ async function runSubmission(
         guestId: data.guestId,
         eventId: data.eventId,
         attending: data.attending,
-        allergiesText: data.allergiesText,
-        songRequestText: data.songRequestText,
       },
       update: {
         attending: data.attending,
-        allergiesText: data.allergiesText,
-        songRequestText: data.songRequestText,
         deletedAt: null,
       },
     });
@@ -184,8 +170,6 @@ async function runSubmission(
 
     const payload: Prisma.InputJsonValue = {
       attending: data.attending,
-      allergiesText: data.allergiesText,
-      songRequestText: data.songRequestText,
       menuSelections: data.menuSelections.map((selection) => ({
         courseId: selection.courseId,
         optionId: selection.optionId,
