@@ -7,6 +7,7 @@ import {
   SITE_SETTING_KEYS,
   type SiteSettingKey,
 } from "@/lib/content/site-setting";
+import { requireAdminIdentity } from "@/lib/admin/session";
 import { getPrismaClient } from "@/server/db";
 
 export interface SettingsFormState {
@@ -44,6 +45,7 @@ export async function saveSettingAction(
   _previous: SettingsFormState,
   formData: FormData,
 ): Promise<SettingsFormState> {
+  await requireAdminIdentity();
   const key = String(formData.get("key") ?? "");
   if (!isKnownKey(key)) {
     return { error: `Unknown setting: ${key}` };

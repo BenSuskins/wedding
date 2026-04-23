@@ -30,6 +30,7 @@ export function CourseEditor({ eventId, course }: CourseEditorProps) {
           <li key={option.id}>
             <OptionRow
               eventId={eventId}
+              courseId={course.id}
               optionId={option.id}
               defaultLabel={option.label}
               defaultDescription={option.description ?? ""}
@@ -93,19 +94,21 @@ function CourseHeader({ eventId, course }: { eventId: string; course: MenuCourse
 
 function OptionRow({
   eventId,
+  courseId,
   optionId,
   defaultLabel,
   defaultDescription,
   defaultOrderIndex,
 }: {
   eventId: string;
+  courseId: string;
   optionId: string;
   defaultLabel: string;
   defaultDescription: string;
   defaultOrderIndex: number;
 }) {
   const bound = async (prev: MenuFormState, data: FormData) =>
-    updateMenuOptionAction(eventId, optionId, prev, data);
+    updateMenuOptionAction(eventId, courseId, optionId, prev, data);
   const [state, action, isPending] = useActionState(bound, initialState);
 
   return (
@@ -143,7 +146,7 @@ function OptionRow({
       </button>
       <button
         type="submit"
-        formAction={deleteMenuOptionAction.bind(null, eventId, optionId)}
+        formAction={deleteMenuOptionAction.bind(null, eventId, courseId, optionId)}
         className="rounded border border-red-300 px-3 py-1 text-sm text-red-800 hover:bg-red-50"
       >
         Remove

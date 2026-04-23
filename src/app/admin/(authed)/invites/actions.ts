@@ -14,6 +14,7 @@ import {
   updateInviteCore,
   type CreateInviteInput,
 } from "@/lib/invite/invite";
+import { requireAdminIdentity } from "@/lib/admin/session";
 import { getPrismaClient } from "@/server/db";
 
 export interface InviteFormState {
@@ -54,6 +55,7 @@ export async function createInviteAction(
   _previous: InviteFormState,
   formData: FormData,
 ): Promise<InviteFormState> {
+  await requireAdminIdentity();
   const rawRsvpMode = String(formData.get("rsvpMode") ?? "household");
   const rsvpMode: CreateInviteInput["rsvpMode"] =
     rawRsvpMode === "individual" ? "individual" : "household";
@@ -82,6 +84,7 @@ export async function updateInviteCoreAction(
   _previous: InviteFormState,
   formData: FormData,
 ): Promise<InviteFormState> {
+  await requireAdminIdentity();
   const rawRsvpMode = String(formData.get("rsvpMode") ?? "household");
   const rsvpMode = rawRsvpMode === "individual" ? "individual" : "household";
 
@@ -116,6 +119,7 @@ export async function updateInviteCoreAction(
 }
 
 export async function rotateInviteTokenAction(inviteId: string): Promise<void> {
+  await requireAdminIdentity();
   const result = await rotateInviteToken(getPrismaClient(), inviteId);
   if (result.isErr() && result.error.kind !== "not_found") {
     throw new Error(`Token rotation failed: ${result.error.kind}`);
@@ -126,6 +130,7 @@ export async function rotateInviteTokenAction(inviteId: string): Promise<void> {
 }
 
 export async function deleteInviteAction(inviteId: string): Promise<void> {
+  await requireAdminIdentity();
   const result = await deleteInvite(getPrismaClient(), inviteId);
   if (result.isErr() && result.error.kind !== "not_found") {
     throw new Error(`Delete failed: ${result.error.kind}`);
@@ -144,6 +149,7 @@ export async function addGuestAction(
   _previous: GuestFormState,
   formData: FormData,
 ): Promise<GuestFormState> {
+  await requireAdminIdentity();
   const result = await addGuest(getPrismaClient(), inviteId, {
     displayName: String(formData.get("displayName") ?? ""),
     orderIndex: Number(formData.get("orderIndex") ?? 0),
@@ -164,7 +170,8 @@ export async function updateGuestAction(
   _previous: GuestFormState,
   formData: FormData,
 ): Promise<GuestFormState> {
-  const result = await updateGuest(getPrismaClient(), guestId, {
+  await requireAdminIdentity();
+  const result = await updateGuest(getPrismaClient(), guestId, inviteId, {
     displayName: String(formData.get("displayName") ?? ""),
     orderIndex: Number(formData.get("orderIndex") ?? 0),
   });
@@ -182,7 +189,8 @@ export async function updateGuestAction(
 }
 
 export async function removeGuestAction(inviteId: string, guestId: string): Promise<void> {
-  const result = await softDeleteGuest(getPrismaClient(), guestId);
+  await requireAdminIdentity();
+  const result = await softDeleteGuest(getPrismaClient(), guestId, inviteId);
   if (result.isErr() && result.error.kind !== "not_found") {
     throw new Error(`Remove failed: ${result.error.kind}`);
   }

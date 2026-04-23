@@ -12,6 +12,7 @@ import {
   type MenuCourseInput,
   type MenuOptionInput,
 } from "@/lib/rsvp/menu";
+import { requireAdminIdentity } from "@/lib/admin/session";
 import { getPrismaClient } from "@/server/db";
 
 export interface MenuFormState {
@@ -54,6 +55,7 @@ export async function createMenuCourseAction(
   _previous: MenuFormState,
   formData: FormData,
 ): Promise<MenuFormState> {
+  await requireAdminIdentity();
   const result = await createMenuCourse(getPrismaClient(), parseCourseInput(formData, eventId));
   if (result.isErr()) {
     if (result.error.kind === "validation") {
@@ -71,9 +73,11 @@ export async function updateMenuCourseAction(
   _previous: MenuFormState,
   formData: FormData,
 ): Promise<MenuFormState> {
+  await requireAdminIdentity();
   const result = await updateMenuCourse(
     getPrismaClient(),
     courseId,
+    eventId,
     parseCourseInput(formData, eventId),
   );
   if (result.isErr()) {
@@ -90,7 +94,8 @@ export async function deleteMenuCourseAction(
   eventId: string,
   courseId: string,
 ): Promise<void> {
-  const result = await deleteMenuCourse(getPrismaClient(), courseId);
+  await requireAdminIdentity();
+  const result = await deleteMenuCourse(getPrismaClient(), courseId, eventId);
   if (result.isErr() && result.error.kind !== "not_found") {
     throw new Error(`Failed to delete menu course: ${result.error.kind}`);
   }
@@ -103,6 +108,7 @@ export async function createMenuOptionAction(
   _previous: MenuFormState,
   formData: FormData,
 ): Promise<MenuFormState> {
+  await requireAdminIdentity();
   const result = await createMenuOption(
     getPrismaClient(),
     courseId,
@@ -120,13 +126,16 @@ export async function createMenuOptionAction(
 
 export async function updateMenuOptionAction(
   eventId: string,
+  courseId: string,
   optionId: string,
   _previous: MenuFormState,
   formData: FormData,
 ): Promise<MenuFormState> {
+  await requireAdminIdentity();
   const result = await updateMenuOption(
     getPrismaClient(),
     optionId,
+    courseId,
     parseOptionInput(formData),
   );
   if (result.isErr()) {
@@ -141,9 +150,11 @@ export async function updateMenuOptionAction(
 
 export async function deleteMenuOptionAction(
   eventId: string,
+  courseId: string,
   optionId: string,
 ): Promise<void> {
-  const result = await deleteMenuOption(getPrismaClient(), optionId);
+  await requireAdminIdentity();
+  const result = await deleteMenuOption(getPrismaClient(), optionId, courseId);
   if (result.isErr() && result.error.kind !== "not_found") {
     throw new Error(`Failed to delete menu option: ${result.error.kind}`);
   }

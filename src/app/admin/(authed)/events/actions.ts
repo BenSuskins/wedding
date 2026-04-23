@@ -9,6 +9,7 @@ import {
   updateEvent,
   type EventInput,
 } from "@/lib/content/event";
+import { requireAdminIdentity } from "@/lib/admin/session";
 import { getPrismaClient } from "@/server/db";
 
 export interface EventFormState {
@@ -36,6 +37,7 @@ export async function createEventAction(
   _previous: EventFormState,
   formData: FormData,
 ): Promise<EventFormState> {
+  await requireAdminIdentity();
   const input = coerceFormInput(formData);
   const result = await createEvent(getPrismaClient(), input);
 
@@ -62,6 +64,7 @@ export async function updateEventAction(
   _previous: EventFormState,
   formData: FormData,
 ): Promise<EventFormState> {
+  await requireAdminIdentity();
   const input = coerceFormInput(formData);
   const result = await updateEvent(getPrismaClient(), id, input);
 
@@ -88,6 +91,7 @@ export async function updateEventAction(
 }
 
 export async function deleteEventAction(id: string): Promise<void> {
+  await requireAdminIdentity();
   const result = await deleteEvent(getPrismaClient(), id);
   if (result.isErr() && result.error.kind !== "not_found") {
     throw new Error(`Failed to delete event: ${result.error.kind}`);

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { auth } from "@/server/auth";
+import { requireAdminIdentity } from "@/lib/admin/session";
 import { getPrismaClient } from "@/server/db";
 import { exportRsvpCsv } from "@/lib/rsvp/export";
 
@@ -13,8 +13,9 @@ function timestampFilename(now: Date): string {
 }
 
 export async function GET(): Promise<Response> {
-  const session = await auth();
-  if (!session?.user) {
+  try {
+    await requireAdminIdentity();
+  } catch {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 

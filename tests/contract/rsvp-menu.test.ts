@@ -87,7 +87,7 @@ describe("menu course and option service", () => {
     )._unsafeUnwrap();
 
     const renamed = (
-      await updateMenuCourse(harness.prisma, course.id, {
+      await updateMenuCourse(harness.prisma, course.id, event.id, {
         eventId: event.id,
         title: "First course",
         orderIndex: 2,
@@ -97,7 +97,7 @@ describe("menu course and option service", () => {
     expect(renamed.orderIndex).toBe(2);
 
     const relabeled = (
-      await updateMenuOption(harness.prisma, option.id, {
+      await updateMenuOption(harness.prisma, option.id, course.id, {
         label: "Tomato soup",
         description: "vegan",
       })
@@ -105,10 +105,10 @@ describe("menu course and option service", () => {
     expect(relabeled.label).toBe("Tomato soup");
     expect(relabeled.description).toBe("vegan");
 
-    const deletedOption = await deleteMenuOption(harness.prisma, option.id);
+    const deletedOption = await deleteMenuOption(harness.prisma, option.id, course.id);
     expect(deletedOption.isOk()).toBe(true);
 
-    const deletedCourse = await deleteMenuCourse(harness.prisma, course.id);
+    const deletedCourse = await deleteMenuCourse(harness.prisma, course.id, event.id);
     expect(deletedCourse.isOk()).toBe(true);
 
     const fetched = await getMenuCourseById(harness.prisma, course.id);

@@ -125,14 +125,14 @@ describe("invite service", () => {
     expect(added.isOk()).toBe(true);
     const bob = added._unsafeUnwrap();
 
-    const renamed = await updateGuest(harness.prisma, bob.id, {
+    const renamed = await updateGuest(harness.prisma, bob.id, invite.id, {
       displayName: "Robert",
       orderIndex: 1,
     });
     expect(renamed.isOk()).toBe(true);
     expect(renamed._unsafeUnwrap().displayName).toBe("Robert");
 
-    const softDeleted = await softDeleteGuest(harness.prisma, bob.id);
+    const softDeleted = await softDeleteGuest(harness.prisma, bob.id, invite.id);
     expect(softDeleted.isOk()).toBe(true);
 
     const reloaded = await getInviteById(harness.prisma, invite.id);
@@ -150,7 +150,7 @@ describe("invite service", () => {
         eventIds: [event.id],
       })
     )._unsafeUnwrap();
-    await softDeleteGuest(harness.prisma, invite.guests[1]!.id);
+    await softDeleteGuest(harness.prisma, invite.guests[1]!.id, invite.id);
 
     const listed = await listInvites(harness.prisma);
     expect(listed.isOk()).toBe(true);

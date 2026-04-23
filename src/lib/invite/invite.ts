@@ -307,12 +307,13 @@ export function addGuest(
 export function updateGuest(
   prisma: PrismaClient,
   guestId: string,
+  inviteId: string,
   input: GuestInput,
 ): ResultAsync<GuestRecord, GuestError> {
   return parseWithSchema(guestUpdateSchema, input).asyncAndThen((data) =>
     ResultAsync.fromPromise(
       prisma.guest.update({
-        where: { id: guestId },
+        where: { id: guestId, inviteId },
         data: {
           displayName: data.displayName,
           orderIndex: data.orderIndex,
@@ -341,10 +342,11 @@ export function updateInvitePreferences(
 export function softDeleteGuest(
   prisma: PrismaClient,
   guestId: string,
+  inviteId: string,
 ): ResultAsync<void, GuestError> {
   return ResultAsync.fromPromise(
     prisma.guest
-      .update({ where: { id: guestId }, data: { deletedAt: new Date() } })
+      .update({ where: { id: guestId, inviteId }, data: { deletedAt: new Date() } })
       .then(() => undefined),
     (cause) =>
       isPrismaKnownNotFound(cause) ? notFoundError("guest", guestId) : unexpectedError(cause),

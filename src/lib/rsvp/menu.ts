@@ -101,12 +101,13 @@ export function createMenuCourse(
 export function updateMenuCourse(
   prisma: PrismaClient,
   id: string,
+  eventId: string,
   input: MenuCourseInput,
 ): ResultAsync<MenuCourseRecord, MenuCourseError> {
   return parseWithSchema(courseInputSchema, input).asyncAndThen((data) =>
     ResultAsync.fromPromise(
       prisma.menuCourse.update({
-        where: { id },
+        where: { id, eventId },
         data: {
           eventId: data.eventId,
           title: data.title,
@@ -128,9 +129,10 @@ export function updateMenuCourse(
 export function deleteMenuCourse(
   prisma: PrismaClient,
   id: string,
+  eventId: string,
 ): ResultAsync<void, MenuCourseError> {
   return ResultAsync.fromPromise(
-    prisma.menuCourse.delete({ where: { id } }).then(() => undefined),
+    prisma.menuCourse.delete({ where: { id, eventId } }).then(() => undefined),
     (cause) =>
       isPrismaKnownNotFound(cause) ? notFoundError("menu_course", id) : unexpectedError(cause),
   );
@@ -164,12 +166,13 @@ export function createMenuOption(
 export function updateMenuOption(
   prisma: PrismaClient,
   id: string,
+  courseId: string,
   input: MenuOptionInput,
 ): ResultAsync<MenuOptionRecord, MenuOptionError> {
   return parseWithSchema(optionInputSchema, input).asyncAndThen((data) =>
     ResultAsync.fromPromise(
       prisma.menuOption.update({
-        where: { id },
+        where: { id, courseId },
         data: {
           label: data.label,
           description: data.description,
@@ -185,9 +188,10 @@ export function updateMenuOption(
 export function deleteMenuOption(
   prisma: PrismaClient,
   id: string,
+  courseId: string,
 ): ResultAsync<void, MenuOptionError> {
   return ResultAsync.fromPromise(
-    prisma.menuOption.delete({ where: { id } }).then(() => undefined),
+    prisma.menuOption.delete({ where: { id, courseId } }).then(() => undefined),
     (cause) =>
       isPrismaKnownNotFound(cause) ? notFoundError("menu_option", id) : unexpectedError(cause),
   );
