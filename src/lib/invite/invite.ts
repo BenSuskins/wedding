@@ -57,11 +57,14 @@ export interface InviteDetailRecord extends InviteRecord {
   eventAllowances: InviteEventAllowanceRecord[];
 }
 
+export type InviteStatus = "not_sent" | "awaiting" | "responded";
+
 export interface InviteListItem extends InviteRecord {
   activeGuestCount: number;
   guestNames: string[];
   eventTitles: string[];
   hasResponded: boolean;
+  status: InviteStatus;
 }
 
 const guestInputSchema = z.object({
@@ -109,6 +112,12 @@ export type UpdateInviteCoreInput = z.input<typeof updateCoreSchema>;
 export type GuestInput = z.input<typeof guestInputSchema>;
 export type UpdateInvitePreferencesInput = z.input<typeof updatePreferencesSchema>;
 
+function deriveInviteStatus(invitationSent: boolean, hasResponded: boolean): InviteStatus {
+  if (hasResponded) return "responded";
+  if (invitationSent) return "awaiting";
+  return "not_sent";
+}
+
 export function listInvites(
   prisma: PrismaClient,
 ): ResultAsync<InviteListItem[], InviteError> {
@@ -144,6 +153,10 @@ export function listInvites(
       guestNames: row.guests.map((g) => g.displayName),
       eventTitles: row.eventAllowances.map((ea) => ea.event.title),
       hasResponded: row.guests.some((g) => g.rsvpResponses.length > 0),
+      status: deriveInviteStatus(
+        row.invitationSent,
+        row.guests.some((g) => g.rsvpResponses.length > 0),
+      ),
     })),
   );
 }

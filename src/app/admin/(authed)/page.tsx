@@ -17,7 +17,7 @@ export default async function AdminDashboardPage() {
       </header>
 
       {stats && (
-        <dl className="grid gap-4 sm:grid-cols-2">
+        <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <div className="rounded border border-[color:var(--color-ink)]/10 p-5">
             <dt className="text-xs uppercase tracking-[0.2em] text-[color:var(--color-muted)]">Invites</dt>
             <dd className="mt-2 font-serif text-4xl">
@@ -34,6 +34,16 @@ export default async function AdminDashboardPage() {
             </dd>
             <p className="mt-1 text-sm text-[color:var(--color-muted)]">responded</p>
           </div>
+          <div className="rounded border border-[color:var(--color-ink)]/10 p-5">
+            <dt className="text-xs uppercase tracking-[0.2em] text-[color:var(--color-muted)]">Attending</dt>
+            <dd className="mt-2 font-serif text-4xl text-green-700">{stats.guestsAttending}</dd>
+            <p className="mt-1 text-sm text-[color:var(--color-muted)]">guest responses</p>
+          </div>
+          <div className="rounded border border-[color:var(--color-ink)]/10 p-5">
+            <dt className="text-xs uppercase tracking-[0.2em] text-[color:var(--color-muted)]">Declined</dt>
+            <dd className="mt-2 font-serif text-4xl text-red-700">{stats.guestsDeclined}</dd>
+            <p className="mt-1 text-sm text-[color:var(--color-muted)]">guest responses</p>
+          </div>
         </dl>
       )}
       <ul className="grid gap-4 sm:grid-cols-2">
@@ -42,6 +52,7 @@ export default async function AdminDashboardPage() {
           { href: "/admin/content", label: "Content blocks", hint: "Hero, travel, and FAQ." },
           { href: "/admin/events", label: "Events", hint: "Ceremony, dinner, and other wedding events." },
           { href: "/admin/settings", label: "Site settings", hint: "Site title, wedding date, RSVP deadline." },
+          { href: "/admin/dietary", label: "Dietary & Songs", hint: "All dietary notes and song requests in one place." },
           { href: "/admin/export", label: "Export RSVPs", hint: "Download the current RSVP state as CSV." },
         ].map((card) => (
           <li key={card.href}>

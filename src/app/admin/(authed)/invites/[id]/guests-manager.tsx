@@ -67,14 +67,7 @@ function GuestRow({
           required
           className="flex-1 rounded border border-[color:var(--color-ink)]/20 bg-white px-3 py-2"
         />
-        <input
-          type="number"
-          name="orderIndex"
-          defaultValue={guest.orderIndex}
-          min={0}
-          aria-label="Order"
-          className="w-20 rounded border border-[color:var(--color-ink)]/20 bg-white px-3 py-2"
-        />
+        <input type="hidden" name="orderIndex" defaultValue={guest.orderIndex} />
         <button
           type="submit"
           disabled={isPending}

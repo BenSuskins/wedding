@@ -9,6 +9,8 @@ export interface DashboardStats {
   invitesResponded: number;
   totalGuests: number;
   guestsResponded: number;
+  guestsAttending: number;
+  guestsDeclined: number;
 }
 
 export function getDashboardStats(
@@ -33,12 +35,20 @@ export function getDashboardStats(
           rsvpResponses: { some: { deletedAt: null } },
         },
       }),
+      prisma.rsvpResponse.count({
+        where: { deletedAt: null, attending: true, guest: { deletedAt: null, invite: { deletedAt: null } } },
+      }),
+      prisma.rsvpResponse.count({
+        where: { deletedAt: null, attending: false, guest: { deletedAt: null, invite: { deletedAt: null } } },
+      }),
     ]),
     unexpectedError,
-  ).map(([totalInvites, invitesResponded, totalGuests, guestsResponded]) => ({
+  ).map(([totalInvites, invitesResponded, totalGuests, guestsResponded, guestsAttending, guestsDeclined]) => ({
     totalInvites,
     invitesResponded,
     totalGuests,
     guestsResponded,
+    guestsAttending,
+    guestsDeclined,
   }));
 }

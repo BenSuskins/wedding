@@ -1,10 +1,25 @@
 import Link from "next/link";
 
-import { listInvites } from "@/lib/invite/invite";
+import { listInvites, type InviteStatus } from "@/lib/invite/invite";
 import { getPrismaClient } from "@/server/db";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
+
+const statusBadge: Record<InviteStatus, { label: string; className: string }> = {
+  not_sent: {
+    label: "Not sent",
+    className: "bg-gray-100 text-gray-600 border border-gray-200",
+  },
+  awaiting: {
+    label: "Awaiting",
+    className: "bg-yellow-50 text-yellow-800 border border-yellow-200",
+  },
+  responded: {
+    label: "Responded",
+    className: "bg-green-50 text-green-800 border border-green-200",
+  },
+};
 
 export default async function AdminInvitesPage() {
   const result = await listInvites(getPrismaClient());
@@ -34,29 +49,34 @@ export default async function AdminInvitesPage() {
               <th className="py-2">Names</th>
               <th className="py-2 w-20"># Guests</th>
               <th className="py-2">Events</th>
-              <th className="py-2 w-24">Responded</th>
-              <th className="py-2 w-20">Sent</th>
+              <th className="py-2 w-28">Status</th>
               <th className="py-2 text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-[color:var(--color-ink)]/10">
-            {invites.map((invite) => (
-              <tr key={invite.id}>
-                <td className="py-3 font-serif">{invite.guestNames.join(", ")}</td>
-                <td className="py-3">{invite.activeGuestCount}</td>
-                <td className="py-3">{invite.eventTitles.join(", ")}</td>
-                <td className="py-3">{invite.hasResponded ? "yes" : "no"}</td>
-                <td className="py-3">{invite.invitationSent ? "yes" : "no"}</td>
-                <td className="py-3 text-right">
-                  <Link
-                    href={`/admin/invites/${invite.id}`}
-                    className="rounded border border-[color:var(--color-ink)]/20 px-3 py-1 text-sm hover:bg-[color:var(--color-ink)]/5"
-                  >
-                    Manage
-                  </Link>
-                </td>
-              </tr>
-            ))}
+            {invites.map((invite) => {
+              const badge = statusBadge[invite.status];
+              return (
+                <tr key={invite.id}>
+                  <td className="py-3 font-serif">{invite.guestNames.join(", ")}</td>
+                  <td className="py-3">{invite.activeGuestCount}</td>
+                  <td className="py-3">{invite.eventTitles.join(", ")}</td>
+                  <td className="py-3">
+                    <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${badge.className}`}>
+                      {badge.label}
+                    </span>
+                  </td>
+                  <td className="py-3 text-right">
+                    <Link
+                      href={`/admin/invites/${invite.id}`}
+                      className="rounded border border-[color:var(--color-ink)]/20 px-3 py-1 text-sm hover:bg-[color:var(--color-ink)]/5"
+                    >
+                      Manage
+                    </Link>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       )}
