@@ -120,7 +120,11 @@ export default async function InviteDetailPage({ params }: { params: Promise<Par
 
       <section>
         <h3 className="font-serif text-xl">Guests</h3>
-        <GuestsManager inviteId={invite.id} guests={invite.guests} />
+        <GuestsManager
+          inviteId={invite.id}
+          guests={invite.guests}
+          events={allEvents.map((event) => ({ id: event.id, title: event.title }))}
+        />
       </section>
 
       {(invite.allergiesText || invite.songRequestText) ? (

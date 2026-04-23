@@ -21,6 +21,15 @@ export interface GuestRecord {
   updatedAt: Date;
 }
 
+export interface RsvpResponseRecord {
+  eventId: string;
+  attending: boolean;
+}
+
+export interface GuestWithResponses extends GuestRecord {
+  responses: RsvpResponseRecord[];
+}
+
 export interface InviteEventAllowanceRecord {
   eventId: string;
 }
@@ -40,6 +49,11 @@ export interface InviteRecord {
 
 export interface InviteWithRelations extends InviteRecord {
   guests: GuestRecord[];
+  eventAllowances: InviteEventAllowanceRecord[];
+}
+
+export interface InviteDetailRecord extends InviteRecord {
+  guests: GuestWithResponses[];
   eventAllowances: InviteEventAllowanceRecord[];
 }
 
@@ -137,19 +151,35 @@ export function listInvites(
 export function getInviteById(
   prisma: PrismaClient,
   id: string,
-): ResultAsync<InviteWithRelations, InviteError> {
+): ResultAsync<InviteDetailRecord, InviteError> {
   return ResultAsync.fromPromise(
     prisma.invite.findUnique({
       where: { id },
       include: {
-        guests: { where: { deletedAt: null }, orderBy: { orderIndex: "asc" } },
+        guests: {
+          where: { deletedAt: null },
+          orderBy: { orderIndex: "asc" },
+          include: {
+            rsvpResponses: {
+              where: { deletedAt: null },
+              select: { eventId: true, attending: true },
+            },
+          },
+        },
         eventAllowances: { select: { eventId: true } },
       },
     }),
     unexpectedError,
-  ).andThen((row) =>
-    row && !row.deletedAt ? ok(row) : err(notFoundError("invite", id)),
-  );
+  ).andThen((row) => {
+    if (!row || row.deletedAt) return err(notFoundError("invite", id));
+    return ok({
+      ...row,
+      guests: row.guests.map((guest) => ({
+        ...guest,
+        responses: guest.rsvpResponses,
+      })),
+    });
+  });
 }
 
 export function getInviteByToken(
