@@ -6,7 +6,7 @@ import { getPrismaClient } from "@/server/db";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-const KNOWN_KEYS = ["hero", "travel", "faq", "gifts", "dress_code"] as const;
+const KNOWN_KEYS = ["hero", "travel", "faq"] as const;
 
 export default async function AdminContentListPage() {
   const result = await listContentBlocks(getPrismaClient());
