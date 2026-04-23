@@ -1,1 +1,1 @@
-DELETE FROM "ContentBlock" WHERE key IN ('dress_code', 'gifts');
+DELETE FROM "content_block" WHERE key IN ('dress_code', 'gifts');
