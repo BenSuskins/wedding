@@ -44,7 +44,7 @@ export default async function PublicLayout({ children }: { children: ReactNode }
             <Link
               key={link.href}
               href={link.href}
-              className="text-[length:clamp(0.75rem,0.7rem+0.25vw,0.875rem)] font-[500] tracking-[0.1em] text-[color:var(--color-ink)] no-underline opacity-70 transition-opacity hover:opacity-100"
+              className="text-[length:clamp(1.1rem,1rem+0.5vw,1.25rem)] font-[500] tracking-[0.1em] text-[color:var(--color-ink)] no-underline opacity-70 transition-opacity hover:opacity-100"
               style={{ fontVariant: "small-caps" }}
             >
               {link.label}
