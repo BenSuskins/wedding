@@ -44,7 +44,9 @@ export interface InviteWithRelations extends InviteRecord {
 
 export interface InviteListItem extends InviteRecord {
   activeGuestCount: number;
-  eventAllowanceCount: number;
+  guestNames: string[];
+  eventTitles: string[];
+  hasResponded: boolean;
 }
 
 const guestInputSchema = z.object({
@@ -99,8 +101,14 @@ export function listInvites(
       where: { deletedAt: null },
       orderBy: { createdAt: "asc" },
       include: {
-        guests: { where: { deletedAt: null }, select: { id: true } },
-        eventAllowances: { select: { eventId: true } },
+        guests: {
+          where: { deletedAt: null },
+          select: {
+            displayName: true,
+            rsvpResponses: { where: { deletedAt: null }, select: { id: true }, take: 1 },
+          },
+        },
+        eventAllowances: { select: { event: { select: { title: true } } } },
       },
     }),
     unexpectedError,
@@ -116,7 +124,9 @@ export function listInvites(
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
       activeGuestCount: row.guests.length,
-      eventAllowanceCount: row.eventAllowances.length,
+      guestNames: row.guests.map((g) => g.displayName),
+      eventTitles: row.eventAllowances.map((ea) => ea.event.title),
+      hasResponded: row.guests.some((g) => g.rsvpResponses.length > 0),
     })),
   );
 }

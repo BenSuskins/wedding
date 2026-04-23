@@ -141,7 +141,7 @@ describe("invite service", () => {
     ]);
   });
 
-  it("lists invites with active guest and event counts", async () => {
+  it("lists invites with guest names, counts, event titles, and responded flag", async () => {
     const event = await createEvent(harness, "ceremony");
     const invite = (
       await createInvite(harness.prisma, {
@@ -156,7 +156,9 @@ describe("invite service", () => {
     const rows = listed._unsafeUnwrap();
     expect(rows).toHaveLength(1);
     expect(rows[0]?.activeGuestCount).toBe(1);
-    expect(rows[0]?.eventAllowanceCount).toBe(1);
+    expect(rows[0]?.guestNames).toEqual(["Alice"]);
+    expect(rows[0]?.eventTitles).toEqual([event.title]);
+    expect(rows[0]?.hasResponded).toBe(false);
   });
 
   it("looks up an invite by signed token with version check", async () => {

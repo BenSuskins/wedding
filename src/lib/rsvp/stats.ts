@@ -16,17 +16,22 @@ export function getDashboardStats(
 ): ResultAsync<DashboardStats, UnexpectedError> {
   return ResultAsync.fromPromise(
     Promise.all([
-      prisma.invite.count(),
+      prisma.invite.count({ where: { deletedAt: null } }),
       prisma.invite.count({
         where: {
+          deletedAt: null,
           guests: {
             some: { deletedAt: null, rsvpResponses: { some: { deletedAt: null } } },
           },
         },
       }),
-      prisma.guest.count({ where: { deletedAt: null } }),
+      prisma.guest.count({ where: { deletedAt: null, invite: { deletedAt: null } } }),
       prisma.guest.count({
-        where: { deletedAt: null, rsvpResponses: { some: { deletedAt: null } } },
+        where: {
+          deletedAt: null,
+          invite: { deletedAt: null },
+          rsvpResponses: { some: { deletedAt: null } },
+        },
       }),
     ]),
     unexpectedError,

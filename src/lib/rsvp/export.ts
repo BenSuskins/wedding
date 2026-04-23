@@ -52,6 +52,7 @@ export function buildRsvpExportRows(
   return ResultAsync.fromPromise(
     Promise.all([
       prisma.invite.findMany({
+        where: { deletedAt: null },
         orderBy: { createdAt: "asc" },
         include: {
           guests: {

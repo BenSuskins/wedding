@@ -31,22 +31,20 @@ export default async function AdminInvitesPage() {
         <table className="mt-8 w-full table-fixed border-collapse text-left text-sm">
           <thead className="border-b border-[color:var(--color-ink)]/10 uppercase tracking-[0.2em] text-xs text-[color:var(--color-muted)]">
             <tr>
-              <th className="py-2">Guests</th>
-              <th className="py-2">Mode</th>
-              <th className="py-2">+1 allowed</th>
+              <th className="py-2">Names</th>
+              <th className="py-2 w-20"># Guests</th>
               <th className="py-2">Events</th>
-              <th className="py-2">Token v</th>
+              <th className="py-2 w-28">Responded</th>
               <th className="py-2 text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-[color:var(--color-ink)]/10">
             {invites.map((invite) => (
               <tr key={invite.id}>
-                <td className="py-3 font-serif">{invite.activeGuestCount} guests</td>
-                <td className="py-3">{invite.rsvpMode}</td>
-                <td className="py-3">{invite.plusOneAllowed ? "yes" : "no"}</td>
-                <td className="py-3">{invite.eventAllowanceCount}</td>
-                <td className="py-3">v{invite.tokenVersion}</td>
+                <td className="py-3 font-serif">{invite.guestNames.join(", ")}</td>
+                <td className="py-3">{invite.activeGuestCount}</td>
+                <td className="py-3">{invite.eventTitles.join(", ")}</td>
+                <td className="py-3">{invite.hasResponded ? "yes" : "no"}</td>
                 <td className="py-3 text-right">
                   <Link
                     href={`/admin/invites/${invite.id}`}
