@@ -23,9 +23,7 @@ export interface EventFormProps {
 const initialState: EventFormState = {};
 
 function toLocalInputValue(date: Date): string {
-  const tzOffsetMinutes = date.getTimezoneOffset();
-  const local = new Date(date.getTime() - tzOffsetMinutes * 60_000);
-  return local.toISOString().slice(0, 16);
+  return date.toISOString().slice(0, 16);
 }
 
 function issueFor(state: EventFormState, path: string): string | undefined {
