@@ -3,9 +3,10 @@
 import { useActionState } from "react";
 
 import { saveSettingAction, type SettingsFormState } from "./actions";
+import type { SiteSettingKey } from "@/lib/content/site-setting";
 
 export interface SettingFormProps {
-  settingKey: "site_title" | "wedding_date" | "rsvp_deadline" | "hero_image_path" | "ceremony_image_path" | "reception_image_path";
+  settingKey: SiteSettingKey;
   label: string;
   inputType: "text" | "datetime-local";
   currentValue: string;

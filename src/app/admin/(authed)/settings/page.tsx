@@ -24,6 +24,11 @@ export default async function AdminSettingsPage() {
     result.value.map((row) => [row.key, row]),
   );
   const siteTitle = byKey.get("site_title");
+  const logoText = byKey.get("logo_text");
+  const pageTitle = byKey.get("page_title");
+  const metaDescription = byKey.get("meta_description");
+  const heroPretitle = byKey.get("hero_pretitle");
+  const rsvpHeading = byKey.get("rsvp_heading");
   const weddingDate = byKey.get("wedding_date");
   const rsvpDeadline = byKey.get("rsvp_deadline");
   const heroImage = byKey.get("hero_image_path");
@@ -41,12 +46,64 @@ export default async function AdminSettingsPage() {
 
       <SettingForm
         settingKey="site_title"
-        label="Site title"
+        label="Site title (couple names)"
         inputType="text"
         currentValue={
           siteTitle && siteTitle.key === "site_title" ? siteTitle.value.title : ""
         }
         updatedAt={siteTitle?.updatedAt ?? null}
+      />
+
+      <SettingForm
+        settingKey="logo_text"
+        label="Nav logo text"
+        inputType="text"
+        currentValue={
+          logoText && logoText.key === "logo_text" ? logoText.value.text : ""
+        }
+        updatedAt={logoText?.updatedAt ?? null}
+      />
+
+      <SettingForm
+        settingKey="page_title"
+        label="Browser tab title"
+        inputType="text"
+        currentValue={
+          pageTitle && pageTitle.key === "page_title" ? pageTitle.value.title : ""
+        }
+        updatedAt={pageTitle?.updatedAt ?? null}
+      />
+
+      <SettingForm
+        settingKey="meta_description"
+        label="Meta description"
+        inputType="text"
+        currentValue={
+          metaDescription && metaDescription.key === "meta_description"
+            ? metaDescription.value.description
+            : ""
+        }
+        updatedAt={metaDescription?.updatedAt ?? null}
+      />
+
+      <SettingForm
+        settingKey="hero_pretitle"
+        label="Hero pre-title text"
+        inputType="text"
+        currentValue={
+          heroPretitle && heroPretitle.key === "hero_pretitle" ? heroPretitle.value.text : ""
+        }
+        updatedAt={heroPretitle?.updatedAt ?? null}
+      />
+
+      <SettingForm
+        settingKey="rsvp_heading"
+        label="RSVP section heading"
+        inputType="text"
+        currentValue={
+          rsvpHeading && rsvpHeading.key === "rsvp_heading" ? rsvpHeading.value.text : ""
+        }
+        updatedAt={rsvpHeading?.updatedAt ?? null}
       />
 
       <SettingForm

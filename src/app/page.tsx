@@ -45,6 +45,8 @@ export default async function LandingPage() {
     siteTitleResult,
     weddingDateResult,
     rsvpDeadlineResult,
+    heroPretitleResult,
+    rsvpHeadingResult,
     heroImageResult,
     ceremonyImageResult,
     receptionImageResult,
@@ -58,6 +60,8 @@ export default async function LandingPage() {
     getSiteSetting(prisma, "site_title"),
     getSiteSetting(prisma, "wedding_date"),
     getSiteSetting(prisma, "rsvp_deadline"),
+    getSiteSetting(prisma, "hero_pretitle"),
+    getSiteSetting(prisma, "rsvp_heading"),
     getSiteSetting(prisma, "hero_image_path"),
     getSiteSetting(prisma, "ceremony_image_path"),
     getSiteSetting(prisma, "reception_image_path"),
@@ -70,6 +74,10 @@ export default async function LandingPage() {
   ]);
 
   const coupleNames = siteTitleResult.isOk() ? siteTitleResult.value.value.title : "Our Wedding";
+  const heroPretitle = heroPretitleResult.isOk()
+    ? heroPretitleResult.value.value.text
+    : "You are warmly invited to celebrate the marriage of";
+  const rsvpHeading = rsvpHeadingResult.isOk() ? rsvpHeadingResult.value.value.text : "Will you join us?";
   const weddingDate = weddingDateResult.isOk() ? new Date(weddingDateResult.value.value.isoDate) : null;
   const rsvpDeadline = rsvpDeadlineResult.isOk() ? new Date(rsvpDeadlineResult.value.value.isoDate) : null;
   const heroImagePath = heroImageResult.isOk() ? heroImageResult.value.value.path : null;
@@ -187,7 +195,7 @@ export default async function LandingPage() {
             className="mb-6 text-[length:clamp(0.75rem,0.7rem+0.25vw,0.875rem)] font-[500] tracking-[0.14em] text-[color:var(--color-cornflower)]"
             style={{ fontVariant: "small-caps", opacity: 0.7 }}
           >
-            You are warmly invited to celebrate the marriage of
+            {heroPretitle}
           </p>
 
           <h1
@@ -451,7 +459,7 @@ export default async function LandingPage() {
           <h2
             className="mb-5 font-serif text-[length:clamp(2.8rem,2rem+3.5vw,5rem)] font-[300] italic leading-[1.1] text-[color:var(--color-ink)]"
           >
-            Will you join us?
+            {rsvpHeading}
           </h2>
           {formattedRsvpDeadline ? (
             <p className="mx-auto mb-10 max-w-[42ch] leading-[1.65] text-[color:var(--color-muted)]">

@@ -7,6 +7,19 @@ import { getPrismaClient } from "@/server/db";
 
 export const runtime = "nodejs";
 
+async function resolveLogoText(): Promise<string> {
+  try {
+    const prisma = getPrismaClient();
+    const logoResult = await getSiteSetting(prisma, "logo_text");
+    if (logoResult.isOk()) return logoResult.value.value.text;
+    const titleResult = await getSiteSetting(prisma, "site_title");
+    if (titleResult.isOk()) return titleResult.value.value.title;
+  } catch {
+    // DB unavailable — fall through to default.
+  }
+  return "Our Wedding";
+}
+
 async function resolveCoupleNames(): Promise<string> {
   try {
     const result = await getSiteSetting(getPrismaClient(), "site_title");
@@ -25,7 +38,7 @@ const navLinks: ReadonlyArray<{ href: string; label: string }> = [
 ];
 
 export default async function PublicLayout({ children }: { children: ReactNode }) {
-  const coupleNames = await resolveCoupleNames();
+  const [logoText, coupleNames] = await Promise.all([resolveLogoText(), resolveCoupleNames()]);
 
   return (
     <div className="min-h-screen" style={{ background: "var(--color-paper)", color: "var(--color-ink)" }}>
@@ -37,7 +50,7 @@ export default async function PublicLayout({ children }: { children: ReactNode }
           href="/"
           className="font-serif text-[length:clamp(1.2rem,1.1rem+0.5vw,1.5rem)] italic font-[400] tracking-[0.04em] text-[color:var(--color-ink)] no-underline transition-colors hover:text-[color:var(--color-cornflower)]"
         >
-          {coupleNames}
+          {logoText}
         </Link>
         <nav className="flex gap-8">
           {navLinks.map((link) => (

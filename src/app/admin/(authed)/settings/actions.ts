@@ -32,6 +32,16 @@ function buildValue(key: SiteSettingKey, formData: FormData): unknown {
       const raw = String(formData.get("rsvp_deadline") ?? "");
       return { isoDate: raw ? new Date(raw).toISOString() : "" };
     }
+    case "logo_text":
+      return { text: String(formData.get("logo_text") ?? "") };
+    case "page_title":
+      return { title: String(formData.get("page_title") ?? "") };
+    case "meta_description":
+      return { description: String(formData.get("meta_description") ?? "") };
+    case "hero_pretitle":
+      return { text: String(formData.get("hero_pretitle") ?? "") };
+    case "rsvp_heading":
+      return { text: String(formData.get("rsvp_heading") ?? "") };
     case "hero_image_path":
       return { path: String(formData.get("hero_image_path") ?? "") };
     case "ceremony_image_path":
