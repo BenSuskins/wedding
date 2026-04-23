@@ -91,6 +91,7 @@ describe("invite service", () => {
     const updated = await updateInviteCore(harness.prisma, invite.id, {
       rsvpMode: "individual",
       plusOneAllowed: true,
+      invitationSent: false,
       adminNotes: null,
     });
     expect(updated.isOk()).toBe(true);

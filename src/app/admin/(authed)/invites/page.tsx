@@ -34,7 +34,8 @@ export default async function AdminInvitesPage() {
               <th className="py-2">Names</th>
               <th className="py-2 w-20"># Guests</th>
               <th className="py-2">Events</th>
-              <th className="py-2 w-28">Responded</th>
+              <th className="py-2 w-24">Responded</th>
+              <th className="py-2 w-20">Sent</th>
               <th className="py-2 text-right">Actions</th>
             </tr>
           </thead>
@@ -45,6 +46,7 @@ export default async function AdminInvitesPage() {
                 <td className="py-3">{invite.activeGuestCount}</td>
                 <td className="py-3">{invite.eventTitles.join(", ")}</td>
                 <td className="py-3">{invite.hasResponded ? "yes" : "no"}</td>
+                <td className="py-3">{invite.invitationSent ? "yes" : "no"}</td>
                 <td className="py-3 text-right">
                   <Link
                     href={`/admin/invites/${invite.id}`}

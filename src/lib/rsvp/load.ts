@@ -157,6 +157,7 @@ export function loadRsvpStateByToken(
             tokenVersion: invite.tokenVersion,
             rsvpMode: invite.rsvpMode,
             plusOneAllowed: invite.plusOneAllowed,
+            invitationSent: invite.invitationSent,
             adminNotes: invite.adminNotes,
             allergiesText: invite.allergiesText,
             songRequestText: invite.songRequestText,

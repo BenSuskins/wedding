@@ -1,0 +1,1 @@
+ALTER TABLE "invite" ADD COLUMN "invitationSent" BOOLEAN NOT NULL DEFAULT false;

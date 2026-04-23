@@ -11,6 +11,7 @@ export interface InviteCoreFormProps {
   initial: {
     rsvpMode: "household" | "individual";
     plusOneAllowed: boolean;
+    invitationSent: boolean;
     adminNotes: string;
     eventIds: string[];
   };
@@ -48,6 +49,15 @@ export function InviteCoreForm({ action, initial, events }: InviteCoreFormProps)
           <label className="mt-3 inline-flex items-center gap-2">
             <input type="checkbox" name="plusOneAllowed" defaultChecked={initial.plusOneAllowed} />
             Allow +1
+          </label>
+        </div>
+        <div>
+          <span className="block text-sm uppercase tracking-[0.2em] text-[color:var(--color-muted)]">
+            Invitation
+          </span>
+          <label className="mt-3 inline-flex items-center gap-2">
+            <input type="checkbox" name="invitationSent" defaultChecked={initial.invitationSent} />
+            Sent
           </label>
         </div>
       </div>

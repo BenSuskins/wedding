@@ -110,6 +110,7 @@ export default async function InviteDetailPage({ params }: { params: Promise<Par
           initial={{
             rsvpMode: invite.rsvpMode,
             plusOneAllowed: invite.plusOneAllowed,
+            invitationSent: invite.invitationSent,
             adminNotes: invite.adminNotes ?? "",
             eventIds: invite.eventAllowances.map((allowance) => allowance.eventId),
           }}

@@ -88,6 +88,7 @@ export async function updateInviteCoreAction(
   const coreResult = await updateInviteCore(getPrismaClient(), id, {
     rsvpMode,
     plusOneAllowed: formData.get("plusOneAllowed") === "on",
+    invitationSent: formData.get("invitationSent") === "on",
     adminNotes: String(formData.get("adminNotes") ?? ""),
   });
   if (coreResult.isErr()) {

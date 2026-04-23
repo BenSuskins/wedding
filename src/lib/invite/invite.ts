@@ -33,6 +33,7 @@ export interface InviteRecord {
   adminNotes: string | null;
   allergiesText: string | null;
   songRequestText: string | null;
+  invitationSent: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -80,6 +81,7 @@ const updatePreferencesSchema = z.object({
 const updateCoreSchema = z.object({
   rsvpMode: z.enum(["household", "individual"]),
   plusOneAllowed: z.coerce.boolean(),
+  invitationSent: z.coerce.boolean(),
   adminNotes: z
     .union([z.string(), z.literal("")])
     .transform((value) => (value === "" ? null : value))
@@ -121,6 +123,7 @@ export function listInvites(
       adminNotes: row.adminNotes,
       allergiesText: row.allergiesText,
       songRequestText: row.songRequestText,
+      invitationSent: row.invitationSent,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
       activeGuestCount: row.guests.length,
