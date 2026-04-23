@@ -2,8 +2,9 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { Countdown } from "@/components/countdown";
-import { FaqAccordion } from "@/components/faq-accordion";
+import { FaqSection } from "@/components/faq-section";
 import { Sprig } from "@/components/sprig";
+import { TravelSection } from "@/components/travel-section";
 import { getContentBlockByKey } from "@/lib/content/content-block";
 import { listEvents } from "@/lib/content/event";
 import { getSiteSetting } from "@/lib/content/site-setting";
@@ -51,6 +52,8 @@ export default async function LandingPage() {
     introResult,
     travelResult,
     faqResult,
+    travelFrResult,
+    faqFrResult,
   ] = await Promise.all([
     getSiteSetting(prisma, "site_title"),
     getSiteSetting(prisma, "wedding_date"),
@@ -62,6 +65,8 @@ export default async function LandingPage() {
     getContentBlockByKey(prisma, "hero"),
     getContentBlockByKey(prisma, "travel"),
     getContentBlockByKey(prisma, "faq"),
+    getContentBlockByKey(prisma, "travel_fr"),
+    getContentBlockByKey(prisma, "faq_fr"),
   ]);
 
   const coupleNames = siteTitleResult.isOk() ? siteTitleResult.value.value.title : "Our Wedding";
@@ -75,8 +80,11 @@ export default async function LandingPage() {
     ? introResult.value.bodyMarkdown
     : "We are so glad you can be with us. This little site holds everything you need to know for the day.";
   const travelText = travelResult.isOk() ? travelResult.value.bodyMarkdown : "";
+  const travelFrText = travelFrResult.isOk() ? travelFrResult.value.bodyMarkdown : "";
   const faqMarkdown = faqResult.isOk() ? faqResult.value.bodyMarkdown : "";
+  const faqFrMarkdown = faqFrResult.isOk() ? faqFrResult.value.bodyMarkdown : "";
   const faqItems = parseFaqMarkdown(faqMarkdown);
+  const faqFrItems = parseFaqMarkdown(faqFrMarkdown);
 
   const venues = events.reduce<{ name: string; address: string; mapUrl: string | null; type: string }[]>(
     (acc, event) => {
@@ -115,6 +123,11 @@ export default async function LandingPage() {
     : null;
 
   const travelParagraphs = travelText
+    .split(/\n\n+/)
+    .map((p) => p.trim())
+    .filter(Boolean);
+
+  const travelFrParagraphs = travelFrText
     .split(/\n\n+/)
     .map((p) => p.trim())
     .filter(Boolean);
@@ -405,42 +418,7 @@ export default async function LandingPage() {
                 className="object-cover"
               />
             </div>
-            <div>
-              <p
-                className="mb-5 text-[length:clamp(0.75rem,0.7rem+0.25vw,0.875rem)] font-[500] tracking-[0.14em] text-[color:var(--color-cornflower)]"
-                style={{ fontVariant: "small-caps" }}
-              >
-                Getting Here &amp; Staying Over
-              </p>
-              <h2
-                className="mb-6 font-serif text-[length:clamp(2rem,1.6rem+2vw,3.25rem)] font-[400] leading-[1.15]"
-                style={{
-                  display: "inline-block",
-                  paddingBottom: "0.3em",
-                  borderBottom: "2px solid var(--color-peach)",
-                  marginBottom: "1.5rem",
-                }}
-              >
-                Travel &amp;<br />Accommodation
-              </h2>
-              <div className="space-y-4">
-                {travelParagraphs.length > 0 ? (
-                  travelParagraphs.map((para, i) => (
-                    <p
-                      key={i}
-                      className="max-w-[46ch] text-[length:clamp(1rem,0.95rem+0.25vw,1.125rem)] leading-[1.65] text-[color:var(--color-muted)]"
-                      style={{ textWrap: "pretty", whiteSpace: "pre-line" } as React.CSSProperties}
-                    >
-                      {para.replace(/^#+\s*/gm, "").trim()}
-                    </p>
-                  ))
-                ) : (
-                  <p className="max-w-[46ch] text-[length:clamp(1rem,0.95rem+0.25vw,1.125rem)] leading-[1.65] text-[color:var(--color-muted)]">
-                    Travel information coming soon.
-                  </p>
-                )}
-              </div>
-            </div>
+            <TravelSection enParagraphs={travelParagraphs} frParagraphs={travelFrParagraphs} />
           </div>
         </div>
       </section>
@@ -455,7 +433,7 @@ export default async function LandingPage() {
         >
           <div className="mx-auto max-w-[1140px] px-[clamp(1.5rem,5vw,4rem)]">
             <SectionRule label="FAQs" />
-            <FaqAccordion items={faqItems} />
+            <FaqSection enItems={faqItems} frItems={faqFrItems} />
           </div>
         </section>
       ) : null}
