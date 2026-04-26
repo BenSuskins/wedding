@@ -1,6 +1,8 @@
+import { listImageAssets } from "@/lib/content/image-asset";
 import { listSiteSettings, type SiteSettingRecord } from "@/lib/content/site-setting";
 import { getPrismaClient } from "@/server/db";
 
+import { ImagePickerForm } from "./image-picker-form";
 import { SettingForm } from "./setting-form";
 
 export const dynamic = "force-dynamic";
@@ -15,14 +17,21 @@ function toDatetimeLocal(isoDate: string): string {
 }
 
 export default async function AdminSettingsPage() {
-  const result = await listSiteSettings(getPrismaClient());
-  if (result.isErr()) {
-    throw new Error(`Failed to load settings: ${result.error.kind}`);
+  const prisma = getPrismaClient();
+  const [settingsResult, assetsResult] = await Promise.all([
+    listSiteSettings(prisma),
+    listImageAssets(prisma),
+  ]);
+
+  if (settingsResult.isErr()) {
+    throw new Error(`Failed to load settings: ${settingsResult.error.kind}`);
   }
 
   const byKey = new Map<string, SiteSettingRecord>(
-    result.value.map((row) => [row.key, row]),
+    settingsResult.value.map((row) => [row.key, row]),
   );
+  const assets = assetsResult.isOk() ? assetsResult.value : [];
+
   const siteTitle = byKey.get("site_title");
   const logoText = byKey.get("logo_text");
   const pageTitle = byKey.get("page_title");
@@ -34,6 +43,7 @@ export default async function AdminSettingsPage() {
   const heroImage = byKey.get("hero_image_path");
   const ceremonyImage = byKey.get("ceremony_image_path");
   const receptionImage = byKey.get("reception_image_path");
+  const travelImage = byKey.get("travel_image_path");
 
   return (
     <section className="mx-auto max-w-3xl space-y-6">
@@ -130,38 +140,46 @@ export default async function AdminSettingsPage() {
         updatedAt={rsvpDeadline?.updatedAt ?? null}
       />
 
-      <SettingForm
+      <ImagePickerForm
         settingKey="hero_image_path"
-        label="Hero image path"
-        inputType="text"
-        currentValue={
-          heroImage && heroImage.key === "hero_image_path" ? heroImage.value.path : ""
-        }
+        label="Hero image"
+        currentPath={heroImage && heroImage.key === "hero_image_path" ? heroImage.value.path : ""}
+        initialAssets={assets}
         updatedAt={heroImage?.updatedAt ?? null}
       />
 
-      <SettingForm
+      <ImagePickerForm
         settingKey="ceremony_image_path"
-        label="Ceremony venue image path"
-        inputType="text"
-        currentValue={
+        label="Ceremony venue image"
+        currentPath={
           ceremonyImage && ceremonyImage.key === "ceremony_image_path"
             ? ceremonyImage.value.path
             : ""
         }
+        initialAssets={assets}
         updatedAt={ceremonyImage?.updatedAt ?? null}
       />
 
-      <SettingForm
+      <ImagePickerForm
         settingKey="reception_image_path"
-        label="Reception venue image path"
-        inputType="text"
-        currentValue={
+        label="Reception venue image"
+        currentPath={
           receptionImage && receptionImage.key === "reception_image_path"
             ? receptionImage.value.path
             : ""
         }
+        initialAssets={assets}
         updatedAt={receptionImage?.updatedAt ?? null}
+      />
+
+      <ImagePickerForm
+        settingKey="travel_image_path"
+        label="Travel section image"
+        currentPath={
+          travelImage && travelImage.key === "travel_image_path" ? travelImage.value.path : ""
+        }
+        initialAssets={assets}
+        updatedAt={travelImage?.updatedAt ?? null}
       />
     </section>
   );

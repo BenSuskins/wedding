@@ -17,6 +17,7 @@ export const SITE_SETTING_KEYS = [
   "hero_image_path",
   "ceremony_image_path",
   "reception_image_path",
+  "travel_image_path",
 ] as const;
 
 export type SiteSettingKey = (typeof SITE_SETTING_KEYS)[number];
@@ -33,6 +34,7 @@ export const siteSettingSchemas = {
   hero_image_path: z.object({ path: z.string().trim().min(1).max(500) }),
   ceremony_image_path: z.object({ path: z.string().trim().min(1).max(500) }),
   reception_image_path: z.object({ path: z.string().trim().min(1).max(500) }),
+  travel_image_path: z.object({ path: z.string().trim().min(1).max(500) }),
 } satisfies Record<SiteSettingKey, z.ZodTypeAny>;
 
 export type SiteSettingValue<K extends SiteSettingKey> = z.output<

@@ -1,4 +1,5 @@
 import NextAuth, { type DefaultSession, type NextAuthResult } from "next-auth";
+import Credentials from "next-auth/providers/credentials";
 
 import { authConfig } from "@/server/auth.config";
 import { getPrismaClient } from "@/server/db";
@@ -13,12 +14,6 @@ declare module "next-auth" {
   }
 }
 
-// Authorisation is delegated to Authelia: anyone the IdP lets sign in is a
-// valid admin. We mirror the `sub` into AdminUser purely so audit-log rows
-// can reference a stable local id. JWT fields are set/read through narrow
-// casts because pnpm's hoisting makes @auth/core/jwt unresolvable for
-// TypeScript module augmentation.
-
 interface AdminJwtFields {
   adminUserId?: string;
   oidcSub?: string;
@@ -26,24 +21,53 @@ interface AdminJwtFields {
 
 function buildNextAuth(): NextAuthResult {
   const env = getAuthEnv();
+
+  const providers: Parameters<typeof NextAuth>[0]["providers"] = [];
+
+  if (env.oidcIssuer && env.oidcClientId && env.oidcClientSecret) {
+    providers.push({
+      id: "oidc",
+      name: "SSO",
+      type: "oidc",
+      issuer: env.oidcIssuer,
+      clientId: env.oidcClientId,
+      clientSecret: env.oidcClientSecret,
+      checks: ["pkce", "state"],
+    });
+  }
+
+  if (env.adminPassword) {
+    const password = env.adminPassword;
+    providers.push(
+      Credentials({
+        id: "credentials",
+        credentials: { password: {} },
+        authorize(credentials) {
+          if (credentials.password !== password) return null;
+          return { id: "credentials:admin", name: "Admin" };
+        },
+      }),
+    );
+  }
+
   return NextAuth({
     ...authConfig,
     secret: env.authSecret,
-    providers: [
-      {
-        id: "authelia",
-        name: "Authelia",
-        type: "oidc",
-        issuer: env.oidcIssuer,
-        clientId: env.oidcClientId,
-        clientSecret: env.oidcClientSecret,
-        checks: ["pkce", "state"],
-      },
-    ],
+    providers,
     callbacks: {
       ...authConfig.callbacks,
-      async jwt({ token, account, profile }) {
-        if (account && profile?.sub) {
+      async jwt({ token, account, profile, user }) {
+        if (account?.provider === "credentials" && user) {
+          const prisma = getPrismaClient();
+          const adminUser = await prisma.adminUser.upsert({
+            where: { oidcSub: "credentials:admin" },
+            create: { oidcSub: "credentials:admin", email: null, lastSeenAt: new Date() },
+            update: { lastSeenAt: new Date() },
+          });
+          const enriched = token as typeof token & AdminJwtFields;
+          enriched.adminUserId = adminUser.id;
+          enriched.oidcSub = "credentials:admin";
+        } else if (account && profile?.sub) {
           const prisma = getPrismaClient();
           const email = typeof profile.email === "string" ? profile.email : null;
           const adminUser = await prisma.adminUser.upsert({

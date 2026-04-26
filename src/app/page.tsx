@@ -50,6 +50,7 @@ export default async function LandingPage() {
     heroImageResult,
     ceremonyImageResult,
     receptionImageResult,
+    travelImageResult,
     eventsResult,
     introResult,
     travelResult,
@@ -65,6 +66,7 @@ export default async function LandingPage() {
     getSiteSetting(prisma, "hero_image_path"),
     getSiteSetting(prisma, "ceremony_image_path"),
     getSiteSetting(prisma, "reception_image_path"),
+    getSiteSetting(prisma, "travel_image_path"),
     listEvents(prisma),
     getContentBlockByKey(prisma, "hero"),
     getContentBlockByKey(prisma, "travel"),
@@ -83,6 +85,9 @@ export default async function LandingPage() {
   const heroImagePath = heroImageResult.isOk() ? heroImageResult.value.value.path : null;
   const ceremonyImagePath = ceremonyImageResult.isOk() ? ceremonyImageResult.value.value.path : null;
   const receptionImagePath = receptionImageResult.isOk() ? receptionImageResult.value.value.path : null;
+  const travelImagePath = travelImageResult.isOk()
+    ? travelImageResult.value.value.path
+    : "/images/country.jpg";
   const events = eventsResult.isOk() ? eventsResult.value : [];
   const introText = introResult.isOk()
     ? introResult.value.bodyMarkdown
@@ -157,7 +162,7 @@ export default async function LandingPage() {
           aria-label="Return to top"
           className="font-serif text-[length:clamp(1.2rem,1.1rem+0.5vw,1.5rem)] italic font-[400] tracking-[0.04em] text-[color:var(--color-ink)] no-underline"
         >
-          M & B
+          {coupleNames}
         </Link>
         <ul className="hidden list-none gap-8 sm:flex">
           {[
@@ -420,8 +425,8 @@ export default async function LandingPage() {
           <div className="landing-two-col items-center gap-[clamp(3rem,6vw,7rem)]">
             <div className="relative w-full" style={{ aspectRatio: "3/2" }}>
               <Image
-                src="/images/country.jpg"
-                alt="Essex countryside"
+                src={travelImagePath}
+                alt="Travel photo"
                 fill
                 className="object-cover"
               />

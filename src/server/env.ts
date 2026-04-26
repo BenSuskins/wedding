@@ -8,15 +8,17 @@ function requireEnv(name: string): string {
 
 export function getAuthEnv(): {
   authSecret: string;
-  oidcIssuer: string;
-  oidcClientId: string;
-  oidcClientSecret: string;
+  oidcIssuer: string | null;
+  oidcClientId: string | null;
+  oidcClientSecret: string | null;
+  adminPassword: string | null;
 } {
   return {
     authSecret: requireEnv("AUTH_SECRET"),
-    oidcIssuer: requireEnv("OIDC_ISSUER"),
-    oidcClientId: requireEnv("OIDC_CLIENT_ID"),
-    oidcClientSecret: requireEnv("OIDC_CLIENT_SECRET"),
+    oidcIssuer: process.env.OIDC_ISSUER ?? null,
+    oidcClientId: process.env.OIDC_CLIENT_ID ?? null,
+    oidcClientSecret: process.env.OIDC_CLIENT_SECRET ?? null,
+    adminPassword: process.env.ADMIN_PASSWORD ?? null,
   };
 }
 
