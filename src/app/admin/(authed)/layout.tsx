@@ -13,6 +13,7 @@ const adminNav: ReadonlyArray<{ href: string; label: string }> = [
   { href: "/admin/content", label: "Content" },
   { href: "/admin/events", label: "Events" },
   { href: "/admin/settings", label: "Settings" },
+  { href: "/admin/theme", label: "Theme" },
   { href: "/admin/export", label: "Export" },
 ];
 

@@ -50,6 +50,9 @@ function buildValue(key: SiteSettingKey, formData: FormData): unknown {
       return { path: String(formData.get("reception_image_path") ?? "") };
     case "travel_image_path":
       return { path: String(formData.get("travel_image_path") ?? "") };
+    case "theme_colors":
+      // Managed by saveThemeAction on /admin/theme — not reachable via this form.
+      return { overrides: {} };
   }
 }
 
