@@ -13,7 +13,7 @@ const SECURITY_HEADERS: ReadonlyArray<{ key: string; value: string }> = [
     key: "Content-Security-Policy",
     value: [
       "default-src 'self'",
-      "img-src 'self' data: blob:",
+      "img-src 'self' data: blob: https:",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "script-src 'self' 'unsafe-inline'",
       "font-src 'self' data: https://fonts.gstatic.com",
