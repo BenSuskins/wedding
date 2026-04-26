@@ -43,6 +43,7 @@ export default async function LandingPage() {
 
   const [
     siteTitleResult,
+    logoTextResult,
     weddingDateResult,
     rsvpDeadlineResult,
     heroPretitleResult,
@@ -59,6 +60,7 @@ export default async function LandingPage() {
     faqFrResult,
   ] = await Promise.all([
     getSiteSetting(prisma, "site_title"),
+    getSiteSetting(prisma, "logo_text"),
     getSiteSetting(prisma, "wedding_date"),
     getSiteSetting(prisma, "rsvp_deadline"),
     getSiteSetting(prisma, "hero_pretitle"),
@@ -76,6 +78,7 @@ export default async function LandingPage() {
   ]);
 
   const coupleNames = siteTitleResult.isOk() ? siteTitleResult.value.value.title : "Our Wedding";
+  const logoText = logoTextResult.isOk() ? logoTextResult.value.value.text : coupleNames;
   const heroPretitle = heroPretitleResult.isOk()
     ? heroPretitleResult.value.value.text
     : "You are warmly invited to celebrate the marriage of";
@@ -162,7 +165,7 @@ export default async function LandingPage() {
           aria-label="Return to top"
           className="font-serif text-[length:clamp(1.2rem,1.1rem+0.5vw,1.5rem)] italic font-[400] tracking-[0.04em] text-[color:var(--color-ink)] no-underline"
         >
-          {coupleNames}
+          {logoText}
         </Link>
         <ul className="hidden list-none gap-8 sm:flex">
           {[
