@@ -22,38 +22,36 @@ interface AdminJwtFields {
 function buildNextAuth(): NextAuthResult {
   const env = getAuthEnv();
 
-  const providers: Parameters<typeof NextAuth>[0]["providers"] = [];
-
-  if (env.oidcIssuer && env.oidcClientId && env.oidcClientSecret) {
-    providers.push({
-      id: "oidc",
-      name: "SSO",
-      type: "oidc",
-      issuer: env.oidcIssuer,
-      clientId: env.oidcClientId,
-      clientSecret: env.oidcClientSecret,
-      checks: ["pkce", "state"],
-    });
-  }
-
-  if (env.adminPassword) {
-    const password = env.adminPassword;
-    providers.push(
-      Credentials({
-        id: "credentials",
-        credentials: { password: {} },
-        authorize(credentials) {
-          if (credentials.password !== password) return null;
-          return { id: "credentials:admin", name: "Admin" };
-        },
-      }),
-    );
-  }
-
   return NextAuth({
     ...authConfig,
     secret: env.authSecret,
-    providers,
+    providers: [
+      ...(env.oidcIssuer && env.oidcClientId && env.oidcClientSecret
+        ? [
+            {
+              id: "oidc",
+              name: "SSO",
+              type: "oidc" as const,
+              issuer: env.oidcIssuer,
+              clientId: env.oidcClientId,
+              clientSecret: env.oidcClientSecret,
+              checks: ["pkce", "state"] as ("pkce" | "state" | "nonce" | "none")[],
+            },
+          ]
+        : []),
+      ...(env.adminPassword
+        ? [
+            Credentials({
+              id: "credentials",
+              credentials: { password: {} },
+              authorize(credentials) {
+                if (credentials.password !== env.adminPassword) return null;
+                return { id: "credentials:admin", name: "Admin" };
+              },
+            }),
+          ]
+        : []),
+    ],
     callbacks: {
       ...authConfig.callbacks,
       async jwt({ token, account, profile, user }) {
