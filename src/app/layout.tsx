@@ -26,11 +26,47 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 }
 
-export default function RootLayout({
+const ALLOWED_THEME_VARS: ReadonlySet<string> = new Set([
+  "--color-paper",
+  "--color-paper-mid",
+  "--color-ink",
+  "--color-muted",
+  "--color-cornflower",
+  "--color-cornflower-pale",
+  "--color-peach",
+  "--color-lavender",
+  "--color-eucalyptus",
+  "--font-serif",
+  "--font-sans",
+]);
+
+async function buildThemeStyle(): Promise<string | null> {
+  try {
+    const result = await getSiteSetting(getPrismaClient(), "theme_colors");
+    if (result.isErr()) return null;
+    const overrides = result.value.value.overrides;
+    const entries = Object.entries(overrides).filter(
+      ([k, v]) => ALLOWED_THEME_VARS.has(k) && v && !/[<>{}\\]/.test(v),
+    );
+    if (entries.length === 0) return null;
+    return `:root { ${entries.map(([k, v]) => `${k}: ${v}`).join("; ")} }`;
+  } catch {
+    return null;
+  }
+}
+
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const themeStyle = await buildThemeStyle();
+
   return (
     <html lang="en">
+      {themeStyle ? (
+        <head>
+          <style>{themeStyle}</style>
+        </head>
+      ) : null}
       <body>{children}</body>
     </html>
   );
