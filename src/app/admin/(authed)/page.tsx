@@ -1,71 +1,164 @@
 import Link from "next/link";
 
+import { getSiteSetting } from "@/lib/content/site-setting";
 import { getDashboardStats } from "@/lib/rsvp/stats";
 import { getPrismaClient } from "@/server/db";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
+function formatDate(isoDate: string): string {
+  const d = new Date(isoDate);
+  if (Number.isNaN(d.getTime())) return "";
+  return d.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+}
+
+function daysFrom(isoDate: string): number {
+  const d = new Date(isoDate);
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+  d.setHours(0, 0, 0, 0);
+  return Math.round((d.getTime() - now.getTime()) / 86_400_000);
+}
+
 export default async function AdminDashboardPage() {
-  const statsResult = await getDashboardStats(getPrismaClient());
+  const prisma = getPrismaClient();
+  const [statsResult, weddingDateResult, rsvpDeadlineResult] = await Promise.all([
+    getDashboardStats(prisma),
+    getSiteSetting(prisma, "wedding_date"),
+    getSiteSetting(prisma, "rsvp_deadline"),
+  ]);
+
   const stats = statsResult.isOk() ? statsResult.value : null;
+  const weddingDate = weddingDateResult.isOk() ? weddingDateResult.value.value.isoDate : null;
+  const rsvpDeadline = rsvpDeadlineResult.isOk() ? rsvpDeadlineResult.value.value.isoDate : null;
+
+  const responseRate =
+    stats && stats.totalInvites > 0
+      ? Math.round((stats.invitesResponded / stats.totalInvites) * 100)
+      : 0;
+  const awaitingCount = stats ? stats.totalInvites - stats.invitesResponded : 0;
 
   return (
-    <section className="mx-auto max-w-4xl space-y-8">
+    <section className="max-w-3xl space-y-8">
       <header>
         <h2 className="font-serif text-3xl">Dashboard</h2>
       </header>
 
-      {stats && (
-        <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="rounded border border-[color:var(--color-ink)]/10 p-5">
-            <dt className="text-xs uppercase tracking-[0.2em] text-[color:var(--color-muted)]">Invites</dt>
-            <dd className="mt-2 font-serif text-4xl">
-              {stats.invitesResponded}
-              <span className="ml-2 text-xl text-[color:var(--color-muted)]">/ {stats.totalInvites}</span>
-            </dd>
-            <p className="mt-1 text-sm text-[color:var(--color-muted)]">responded</p>
-          </div>
-          <div className="rounded border border-[color:var(--color-ink)]/10 p-5">
-            <dt className="text-xs uppercase tracking-[0.2em] text-[color:var(--color-muted)]">Guests</dt>
-            <dd className="mt-2 font-serif text-4xl">
-              {stats.guestsResponded}
-              <span className="ml-2 text-xl text-[color:var(--color-muted)]">/ {stats.totalGuests}</span>
-            </dd>
-            <p className="mt-1 text-sm text-[color:var(--color-muted)]">responded</p>
-          </div>
-          <div className="rounded border border-[color:var(--color-ink)]/10 p-5">
-            <dt className="text-xs uppercase tracking-[0.2em] text-[color:var(--color-muted)]">Attending</dt>
-            <dd className="mt-2 font-serif text-4xl text-green-700">{stats.guestsAttending}</dd>
-            <p className="mt-1 text-sm text-[color:var(--color-muted)]">guest responses</p>
-          </div>
-          <div className="rounded border border-[color:var(--color-ink)]/10 p-5">
-            <dt className="text-xs uppercase tracking-[0.2em] text-[color:var(--color-muted)]">Declined</dt>
-            <dd className="mt-2 font-serif text-4xl text-red-700">{stats.guestsDeclined}</dd>
-            <p className="mt-1 text-sm text-[color:var(--color-muted)]">guest responses</p>
-          </div>
-        </dl>
+      {(weddingDate || rsvpDeadline) && (
+        <div className="grid gap-4 sm:grid-cols-2">
+          {weddingDate && (
+            <div className="rounded border border-[color:var(--color-ink)]/10 p-5">
+              <p className="text-xs uppercase tracking-[0.2em] text-[color:var(--color-muted)]">
+                Wedding day
+              </p>
+              <p className="mt-1 font-serif text-xl">{formatDate(weddingDate)}</p>
+              {(() => {
+                const days = daysFrom(weddingDate);
+                return (
+                  <p className="mt-0.5 text-sm text-[color:var(--color-muted)]">
+                    {days > 0 ? `${days} days to go` : days === 0 ? "Today!" : `${Math.abs(days)} days ago`}
+                  </p>
+                );
+              })()}
+            </div>
+          )}
+          {rsvpDeadline && (
+            <div className="rounded border border-[color:var(--color-ink)]/10 p-5">
+              <p className="text-xs uppercase tracking-[0.2em] text-[color:var(--color-muted)]">
+                RSVP deadline
+              </p>
+              <p className="mt-1 font-serif text-xl">{formatDate(rsvpDeadline)}</p>
+              {(() => {
+                const days = daysFrom(rsvpDeadline);
+                return (
+                  <p className="mt-0.5 text-sm text-[color:var(--color-muted)]">
+                    {days > 0 ? `${days} days away` : days === 0 ? "Today" : "Passed"}
+                  </p>
+                );
+              })()}
+            </div>
+          )}
+        </div>
       )}
-      <ul className="grid gap-4 sm:grid-cols-2">
-        {[
-          { href: "/admin/invites", label: "Invites", hint: "Household links, guest lists, and token rotation." },
-          { href: "/admin/content", label: "Content blocks", hint: "Hero, travel, and FAQ." },
-          { href: "/admin/events", label: "Events", hint: "Ceremony, dinner, and other wedding events." },
-          { href: "/admin/settings", label: "Site settings", hint: "Site title, wedding date, RSVP deadline." },
-          { href: "/admin/dietary", label: "Dietary & Songs", hint: "All dietary notes and song requests in one place." },
-          { href: "/admin/export", label: "Export RSVPs", hint: "Download the current RSVP state as CSV." },
-        ].map((card) => (
-          <li key={card.href}>
-            <Link
-              href={card.href}
-              className="block rounded border border-[color:var(--color-ink)]/10 p-5 hover:border-[color:var(--color-cornflower)]"
-            >
-              <div className="font-serif text-xl">{card.label}</div>
-              <p className="mt-1 text-sm text-[color:var(--color-muted)]">{card.hint}</p>
-            </Link>
-          </li>
-        ))}
-      </ul>
+
+      {stats && (
+        <>
+          <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="rounded border border-[color:var(--color-ink)]/10 p-5">
+              <dt className="text-xs uppercase tracking-[0.2em] text-[color:var(--color-muted)]">
+                Attending
+              </dt>
+              <dd className="mt-2 font-serif text-4xl text-green-700">{stats.guestsAttending}</dd>
+              <p className="mt-1 text-sm text-[color:var(--color-muted)]">guests</p>
+            </div>
+            <div className="rounded border border-[color:var(--color-ink)]/10 p-5">
+              <dt className="text-xs uppercase tracking-[0.2em] text-[color:var(--color-muted)]">
+                Declined
+              </dt>
+              <dd className="mt-2 font-serif text-4xl text-red-700">{stats.guestsDeclined}</dd>
+              <p className="mt-1 text-sm text-[color:var(--color-muted)]">guests</p>
+            </div>
+            <div className="rounded border border-[color:var(--color-ink)]/10 p-5">
+              <dt className="text-xs uppercase tracking-[0.2em] text-[color:var(--color-muted)]">
+                Invites
+              </dt>
+              <dd className="mt-2 font-serif text-4xl">
+                {stats.invitesResponded}
+                <span className="ml-1 text-xl text-[color:var(--color-muted)]">
+                  / {stats.totalInvites}
+                </span>
+              </dd>
+              <p className="mt-1 text-sm text-[color:var(--color-muted)]">responded</p>
+            </div>
+            <div className="rounded border border-[color:var(--color-ink)]/10 p-5">
+              <dt className="text-xs uppercase tracking-[0.2em] text-[color:var(--color-muted)]">
+                Awaiting
+              </dt>
+              <dd className="mt-2 font-serif text-4xl">{awaitingCount}</dd>
+              <p className="mt-1 text-sm text-[color:var(--color-muted)]">invites</p>
+            </div>
+          </dl>
+
+          <div>
+            <div className="mb-2 flex items-center justify-between text-sm">
+              <span className="text-[color:var(--color-muted)]">Response progress</span>
+              <span className="font-[500]">
+                {responseRate}%{" "}
+                <span className="font-normal text-[color:var(--color-muted)]">
+                  ({stats.invitesResponded} of {stats.totalInvites})
+                </span>
+              </span>
+            </div>
+            <div className="h-2 w-full overflow-hidden rounded-full bg-[color:var(--color-ink)]/10">
+              <div
+                className="h-full rounded-full bg-[color:var(--color-cornflower)] transition-all"
+                style={{ width: `${responseRate}%` }}
+              />
+            </div>
+          </div>
+        </>
+      )}
+
+      <div>
+        <p className="mb-3 text-xs uppercase tracking-[0.2em] text-[color:var(--color-muted)]">
+          Quick actions
+        </p>
+        <div className="flex flex-wrap gap-3">
+          <Link
+            href="/admin/invites/new"
+            className="rounded border border-[color:var(--color-ink)]/20 px-4 py-2 text-sm hover:bg-[color:var(--color-ink)]/5 transition-colors"
+          >
+            + New invite
+          </Link>
+          <Link
+            href="/admin/export"
+            className="rounded border border-[color:var(--color-ink)]/20 px-4 py-2 text-sm hover:bg-[color:var(--color-ink)]/5 transition-colors"
+          >
+            ↓ Export CSV
+          </Link>
+        </div>
+      </div>
     </section>
   );
 }
