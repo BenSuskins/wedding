@@ -41,7 +41,11 @@ export async function POST(req: Request): Promise<NextResponse> {
     return NextResponse.json({ error: "No file provided" }, { status: 400 });
   }
 
-  if (!file.type.startsWith("image/")) {
+  const rawExt = file.name.split(".").pop()?.toLowerCase() ?? "";
+  const hasImageMime = file.type.startsWith("image/");
+  const hasAllowedExt = ALLOWED_EXTENSIONS.has(rawExt);
+
+  if (!hasImageMime && !hasAllowedExt) {
     return NextResponse.json({ error: "Only image files are allowed" }, { status: 400 });
   }
 
@@ -52,8 +56,7 @@ export async function POST(req: Request): Promise<NextResponse> {
     );
   }
 
-  const rawExt = file.name.split(".").pop()?.toLowerCase() ?? "";
-  const ext = ALLOWED_EXTENSIONS.has(rawExt) ? rawExt : "jpg";
+  const ext = hasAllowedExt ? rawExt : "jpg";
   const rawBase = path.basename(file.name, `.${rawExt}`);
   const safeBase = sanitiseBasename(rawBase);
   const uniquePrefix = crypto.randomUUID().slice(0, 8);
