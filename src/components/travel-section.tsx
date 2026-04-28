@@ -5,14 +5,13 @@ import { useState } from "react";
 import { LanguageToggle } from "@/components/language-toggle";
 
 interface TravelSectionProps {
-  enParagraphs: string[];
-  frParagraphs: string[];
+  contentByLocale: Record<string, string[]>;
 }
 
-export function TravelSection({ enParagraphs, frParagraphs }: TravelSectionProps) {
-  const [locale, setLocale] = useState<"en" | "fr">("en");
-  const paragraphs = locale === "fr" && frParagraphs.length > 0 ? frParagraphs : enParagraphs;
-  const hasFrench = frParagraphs.length > 0;
+export function TravelSection({ contentByLocale }: TravelSectionProps) {
+  const locales = Object.keys(contentByLocale);
+  const [locale, setLocale] = useState(locales[0] ?? "en");
+  const paragraphs = contentByLocale[locale] ?? contentByLocale[locales[0] ?? "en"] ?? [];
 
   return (
     <div>
@@ -23,7 +22,9 @@ export function TravelSection({ enParagraphs, frParagraphs }: TravelSectionProps
         >
           Getting Here &amp; Staying Over
         </p>
-        {hasFrench && <LanguageToggle locale={locale} onChange={setLocale} />}
+        {locales.length > 1 && (
+          <LanguageToggle locales={locales} locale={locale} onChange={setLocale} />
+        )}
       </div>
       <h2
         className="font-serif text-[length:clamp(2rem,1.6rem+2vw,3.25rem)] font-[400] leading-[1.15]"

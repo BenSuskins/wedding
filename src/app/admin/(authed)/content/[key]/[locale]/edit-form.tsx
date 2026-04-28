@@ -2,25 +2,40 @@
 
 import { useActionState } from "react";
 
-import {
-  saveContentBlock,
-  type SaveContentBlockState,
-} from "./actions";
+import { saveContentBlock, type SaveContentBlockState } from "./actions";
 
 export interface EditFormProps {
   contentKey: string;
+  locale: string;
   initialTitle: string;
   initialBody: string;
 }
 
 const initialState: SaveContentBlockState = {};
 
-export function ContentBlockEditForm({ contentKey, initialTitle, initialBody }: EditFormProps) {
+export function ContentBlockEditForm({ contentKey, locale, initialTitle, initialBody }: EditFormProps) {
   const [state, formAction, isPending] = useActionState(saveContentBlock, initialState);
+  const isNew = locale === "";
 
   return (
     <form action={formAction} className="mt-8 space-y-6">
       <input type="hidden" name="key" value={contentKey} />
+      {isNew ? (
+        <div>
+          <label htmlFor="locale" className="block text-sm uppercase tracking-[0.2em] text-[color:var(--color-muted)]">
+            Locale code
+          </label>
+          <input
+            id="locale"
+            name="locale"
+            required
+            placeholder="e.g. fr, de, es"
+            className="mt-2 w-40 rounded border border-[color:var(--color-ink)]/20 bg-white px-3 py-2"
+          />
+        </div>
+      ) : (
+        <input type="hidden" name="locale" value={locale} />
+      )}
 
       <div>
         <label htmlFor="title" className="block text-sm uppercase tracking-[0.2em] text-[color:var(--color-muted)]">

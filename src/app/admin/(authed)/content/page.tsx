@@ -6,7 +6,13 @@ import { getPrismaClient } from "@/server/db";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-const KNOWN_KEYS = ["hero", "travel", "travel_fr", "faq", "faq_fr"] as const;
+const KNOWN_KEYS = ["hero", "travel", "faq"] as const;
+
+const KNOWN_LABELS: Record<(typeof KNOWN_KEYS)[number], string> = {
+  hero: "Hero",
+  travel: "Travel",
+  faq: "FAQ",
+};
 
 export default async function AdminContentListPage() {
   const result = await listContentBlocks(getPrismaClient());
@@ -14,9 +20,17 @@ export default async function AdminContentListPage() {
     throw new Error(`Failed to load content blocks: ${result.error.kind}`);
   }
 
-  const existing = new Map(result.value.map((block) => [block.key, block]));
-  const rows = KNOWN_KEYS.map((key) => ({ key, block: existing.get(key) ?? null }));
-  const extras = result.value.filter((block) => !KNOWN_KEYS.includes(block.key as (typeof KNOWN_KEYS)[number]));
+  const byKey = new Map<string, { locale: string; updatedAt: Date }[]>();
+  for (const block of result.value) {
+    const existing = byKey.get(block.key) ?? [];
+    existing.push({ locale: block.locale, updatedAt: block.updatedAt });
+    byKey.set(block.key, existing);
+  }
+
+  const knownRows = KNOWN_KEYS.map((key) => ({ key, label: KNOWN_LABELS[key], locales: byKey.get(key) ?? [] }));
+  const extraKeys = [...byKey.keys()].filter((k) => !KNOWN_KEYS.includes(k as (typeof KNOWN_KEYS)[number]));
+  const extraRows = extraKeys.map((key) => ({ key, label: key, locales: byKey.get(key) ?? [] }));
+  const rows = [...knownRows, ...extraRows];
 
   return (
     <section className="mx-auto max-w-4xl">
@@ -28,49 +42,38 @@ export default async function AdminContentListPage() {
       </p>
 
       <ul className="mt-8 divide-y divide-[color:var(--color-ink)]/10">
-        {rows.map(({ key, block }) => (
+        {rows.map(({ key, label, locales }) => (
           <li key={key} className="flex items-center justify-between py-4">
             <div>
-              <div className="font-serif text-lg">{block?.title ?? humanize(key)}</div>
-              <div className="text-xs uppercase tracking-[0.2em] text-[color:var(--color-muted)]">
-                key: {key}
-                {block
-                  ? ` · updated ${block.updatedAt.toLocaleString("en-GB")}`
-                  : " · not yet created"}
+              <div className="font-serif text-lg">{label}</div>
+              <div className="mt-1 flex flex-wrap gap-2">
+                {locales.length === 0 ? (
+                  <span className="text-xs uppercase tracking-[0.15em] text-[color:var(--color-muted)]">
+                    Not yet created
+                  </span>
+                ) : (
+                  locales.map(({ locale, updatedAt }) => (
+                    <Link
+                      key={locale}
+                      href={`/admin/content/${key}/${locale}`}
+                      className="rounded border border-[color:var(--color-ink)]/20 px-2 py-0.5 text-xs uppercase tracking-[0.15em] hover:bg-[color:var(--color-ink)]/5"
+                      title={`Updated ${updatedAt.toLocaleString("en-GB")}`}
+                    >
+                      {locale}
+                    </Link>
+                  ))
+                )}
               </div>
             </div>
             <Link
-              href={`/admin/content/${key}`}
+              href={`/admin/content/${key}/new`}
               className="rounded border border-[color:var(--color-ink)]/20 px-3 py-1 text-sm hover:bg-[color:var(--color-ink)]/5"
             >
-              Edit
-            </Link>
-          </li>
-        ))}
-        {extras.map((block) => (
-          <li key={block.key} className="flex items-center justify-between py-4">
-            <div>
-              <div className="font-serif text-lg">{block.title}</div>
-              <div className="text-xs uppercase tracking-[0.2em] text-[color:var(--color-muted)]">
-                key: {block.key} · updated {block.updatedAt.toLocaleString("en-GB")}
-              </div>
-            </div>
-            <Link
-              href={`/admin/content/${block.key}`}
-              className="rounded border border-[color:var(--color-ink)]/20 px-3 py-1 text-sm hover:bg-[color:var(--color-ink)]/5"
-            >
-              Edit
+              + Translation
             </Link>
           </li>
         ))}
       </ul>
     </section>
   );
-}
-
-function humanize(key: string): string {
-  return key
-    .split("_")
-    .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
-    .join(" ");
 }

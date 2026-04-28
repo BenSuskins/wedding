@@ -178,12 +178,14 @@ model RsvpAuditLog {
 
 model ContentBlock {
   id             String   @id @default(cuid())
-  key            String   @unique
+  key            String
+  locale         String   @default("en")
   title          String
   bodyMarkdown   String
   updatedAt      DateTime @updatedAt
   updatedByAdmin String?
 
+  @@unique([key, locale])
   @@map("content_block")
 }
 

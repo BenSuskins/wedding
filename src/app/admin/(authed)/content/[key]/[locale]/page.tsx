@@ -8,19 +8,22 @@ import { ContentBlockEditForm } from "./edit-form";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-interface Params {
-  key: string;
-}
+const KNOWN_LABELS: Record<string, string> = {
+  hero: "Hero",
+  travel: "Travel",
+  faq: "FAQ",
+};
 
 export default async function AdminContentEditPage({
   params,
 }: {
-  params: Promise<Params>;
+  params: Promise<{ key: string; locale: string }>;
 }) {
-  const { key } = await params;
-  const result = await getContentBlockByKey(getPrismaClient(), key);
+  const { key, locale } = await params;
+  const result = await getContentBlockByKey(getPrismaClient(), key, locale);
 
-  const initialTitle = result.isOk() ? result.value.title : humanize(key);
+  const sectionLabel = KNOWN_LABELS[key] ?? key;
+  const initialTitle = result.isOk() ? result.value.title : sectionLabel;
   const initialBody = result.isOk() ? result.value.bodyMarkdown : "";
 
   return (
@@ -30,7 +33,9 @@ export default async function AdminContentEditPage({
           <h2 className="font-serif text-3xl">
             {result.isOk() ? "Edit content" : "Create content"}
           </h2>
-          <p className="mt-1 text-sm text-[color:var(--color-muted)]">Key: {key}</p>
+          <p className="mt-1 text-sm text-[color:var(--color-muted)]">
+            {sectionLabel} · <span className="uppercase">{locale}</span>
+          </p>
         </div>
         <Link
           href="/admin/content"
@@ -42,16 +47,10 @@ export default async function AdminContentEditPage({
 
       <ContentBlockEditForm
         contentKey={key}
+        locale={locale}
         initialTitle={initialTitle}
         initialBody={initialBody}
       />
     </section>
   );
-}
-
-function humanize(key: string): string {
-  return key
-    .split("_")
-    .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
-    .join(" ");
 }

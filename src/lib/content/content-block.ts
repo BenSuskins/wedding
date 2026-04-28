@@ -8,6 +8,7 @@ import { parseWithSchema, unexpectedError } from "@/lib/result";
 export interface ContentBlockRecord {
   id: string;
   key: string;
+  locale: string;
   title: string;
   bodyMarkdown: string;
   updatedAt: Date;
@@ -24,6 +25,12 @@ const upsertSchema = z.object({
       /^[a-z][a-z0-9_]*$/,
       "key must be lowercase alphanumeric with underscores",
     ),
+  locale: z
+    .string()
+    .trim()
+    .min(2, "locale is required")
+    .max(10, "locale must be 10 characters or fewer")
+    .regex(/^[a-z]{2,3}(-[A-Z]{2})?$/, "locale must be a valid BCP 47 tag (e.g. en, fr, en-GB)"),
   title: z.string().trim().min(1, "title is required").max(200),
   bodyMarkdown: z.string().min(1, "body is required"),
   updatedByAdmin: z.string().trim().min(1).max(200).nullable(),
@@ -35,7 +42,7 @@ export function listContentBlocks(
   prisma: PrismaClient,
 ): ResultAsync<ContentBlockRecord[], ContentBlockError> {
   return ResultAsync.fromPromise(
-    prisma.contentBlock.findMany({ orderBy: { key: "asc" } }),
+    prisma.contentBlock.findMany({ orderBy: [{ key: "asc" }, { locale: "asc" }] }),
     unexpectedError,
   );
 }
@@ -43,13 +50,28 @@ export function listContentBlocks(
 export function getContentBlockByKey(
   prisma: PrismaClient,
   key: string,
+  locale = "en",
 ): ResultAsync<ContentBlockRecord, ContentBlockError> {
   return ResultAsync.fromPromise(
-    prisma.contentBlock.findUnique({ where: { key } }),
+    prisma.contentBlock.findUnique({ where: { key_locale: { key, locale } } }),
     unexpectedError,
   ).andThen((record) =>
-    record ? ok(record) : err(notFoundError("content_block", key)),
+    record ? ok(record) : err(notFoundError("content_block", `${key}/${locale}`)),
   );
+}
+
+export function listLocalesForKey(
+  prisma: PrismaClient,
+  key: string,
+): ResultAsync<string[], ContentBlockError> {
+  return ResultAsync.fromPromise(
+    prisma.contentBlock.findMany({
+      where: { key },
+      select: { locale: true },
+      orderBy: { locale: "asc" },
+    }),
+    unexpectedError,
+  ).map((rows) => rows.map((r) => r.locale));
 }
 
 export function upsertContentBlock(
@@ -61,9 +83,10 @@ export function upsertContentBlock(
   return parsed.asyncAndThen((data) =>
     ResultAsync.fromPromise(
       prisma.contentBlock.upsert({
-        where: { key: data.key },
+        where: { key_locale: { key: data.key, locale: data.locale } },
         create: {
           key: data.key,
+          locale: data.locale,
           title: data.title,
           bodyMarkdown: data.bodyMarkdown,
           updatedByAdmin: data.updatedByAdmin,

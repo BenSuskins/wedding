@@ -3,9 +3,10 @@ import Link from "next/link";
 
 import { Countdown } from "@/components/countdown";
 import { FaqSection } from "@/components/faq-section";
+import { IntroSection } from "@/components/intro-section";
 import { Sprig } from "@/components/sprig";
 import { TravelSection } from "@/components/travel-section";
-import { getContentBlockByKey } from "@/lib/content/content-block";
+import { listContentBlocks } from "@/lib/content/content-block";
 import { listEvents } from "@/lib/content/event";
 import { getSiteSetting } from "@/lib/content/site-setting";
 import { parseFaqMarkdown } from "@/lib/parse-faq-markdown";
@@ -53,11 +54,7 @@ export default async function LandingPage() {
     receptionImageResult,
     travelImageResult,
     eventsResult,
-    introResult,
-    travelResult,
-    faqResult,
-    travelFrResult,
-    faqFrResult,
+    contentBlocksResult,
   ] = await Promise.all([
     getSiteSetting(prisma, "site_title"),
     getSiteSetting(prisma, "logo_text"),
@@ -70,12 +67,11 @@ export default async function LandingPage() {
     getSiteSetting(prisma, "reception_image_path"),
     getSiteSetting(prisma, "travel_image_path"),
     listEvents(prisma),
-    getContentBlockByKey(prisma, "hero"),
-    getContentBlockByKey(prisma, "travel"),
-    getContentBlockByKey(prisma, "faq"),
-    getContentBlockByKey(prisma, "travel_fr"),
-    getContentBlockByKey(prisma, "faq_fr"),
+    listContentBlocks(prisma),
   ]);
+
+  const contentBlocks = contentBlocksResult.isOk() ? contentBlocksResult.value : [];
+  const blockByKeyLocale = new Map(contentBlocks.map((b) => [`${b.key}/${b.locale}`, b]));
 
   const coupleNames = siteTitleResult.isOk() ? siteTitleResult.value.value.title : "Our Wedding";
   const logoText = logoTextResult.isOk() ? logoTextResult.value.value.text : coupleNames;
@@ -92,15 +88,13 @@ export default async function LandingPage() {
     ? travelImageResult.value.value.path
     : "/images/country.jpg";
   const events = eventsResult.isOk() ? eventsResult.value : [];
-  const introText = introResult.isOk()
-    ? introResult.value.bodyMarkdown
-    : "We are so glad you can be with us. This little site holds everything you need to know for the day.";
-  const travelText = travelResult.isOk() ? travelResult.value.bodyMarkdown : "";
-  const travelFrText = travelFrResult.isOk() ? travelFrResult.value.bodyMarkdown : "";
-  const faqMarkdown = faqResult.isOk() ? faqResult.value.bodyMarkdown : "";
-  const faqFrMarkdown = faqFrResult.isOk() ? faqFrResult.value.bodyMarkdown : "";
-  const faqItems = parseFaqMarkdown(faqMarkdown);
-  const faqFrItems = parseFaqMarkdown(faqFrMarkdown);
+  const heroLocales = contentBlocks.filter((b) => b.key === "hero").map((b) => b.locale);
+  const introByLocale = heroLocales.length > 0
+    ? Object.fromEntries(heroLocales.map((locale) => [locale, blockByKeyLocale.get(`hero/${locale}`)?.bodyMarkdown ?? ""]))
+    : { en: "We are so glad you can be with us. This little site holds everything you need to know for the day." };
+
+  const travelLocales = contentBlocks.filter((b) => b.key === "travel").map((b) => b.locale);
+  const faqLocales = contentBlocks.filter((b) => b.key === "faq").map((b) => b.locale);
 
   const venues = events.reduce<{ name: string; address: string; mapUrl: string | null; type: string }[]>(
     (acc, event) => {
@@ -138,15 +132,22 @@ export default async function LandingPage() {
       })
     : null;
 
-  const travelParagraphs = travelText
-    .split(/\n\n+/)
-    .map((p) => p.trim())
-    .filter(Boolean);
+  const travelByLocale = Object.fromEntries(
+    travelLocales.map((locale) => [
+      locale,
+      (blockByKeyLocale.get(`travel/${locale}`)?.bodyMarkdown ?? "")
+        .split(/\n\n+/)
+        .map((p) => p.trim())
+        .filter(Boolean),
+    ]),
+  );
 
-  const travelFrParagraphs = travelFrText
-    .split(/\n\n+/)
-    .map((p) => p.trim())
-    .filter(Boolean);
+  const faqByLocale = Object.fromEntries(
+    faqLocales.map((locale) => [
+      locale,
+      parseFaqMarkdown(blockByKeyLocale.get(`faq/${locale}`)?.bodyMarkdown ?? ""),
+    ]),
+  );
 
   return (
     <>
@@ -278,12 +279,7 @@ export default async function LandingPage() {
           <div className="mb-8 flex justify-center">
             <Sprig variant="intro" />
           </div>
-          <p
-            className="text-[length:clamp(1.2rem,1.1rem+0.5vw,1.5rem)] font-[300] leading-[1.7] text-[color:var(--color-ink)]"
-            style={{ textWrap: "pretty" } as React.CSSProperties}
-          >
-            {introText.replace(/^#+\s*/gm, "").trim()}
-          </p>
+          <IntroSection contentByLocale={introByLocale} />
         </div>
       </section>
 
@@ -434,13 +430,13 @@ export default async function LandingPage() {
                 className="object-cover"
               />
             </div>
-            <TravelSection enParagraphs={travelParagraphs} frParagraphs={travelFrParagraphs} />
+            <TravelSection contentByLocale={travelByLocale} />
           </div>
         </div>
       </section>
 
       {/* FAQ */}
-      {faqItems.length > 0 ? (
+      {Object.values(faqByLocale).some((items) => items.length > 0) ? (
         <section
           id="faq"
           className="py-[clamp(4rem,8vw,8rem)]"
@@ -449,7 +445,7 @@ export default async function LandingPage() {
         >
           <div className="mx-auto max-w-[1140px] px-[clamp(1.5rem,5vw,4rem)]">
             <SectionRule label="FAQs" />
-            <FaqSection enItems={faqItems} frItems={faqFrItems} />
+            <FaqSection contentByLocale={faqByLocale} />
           </div>
         </section>
       ) : null}

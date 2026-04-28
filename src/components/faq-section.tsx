@@ -6,20 +6,19 @@ import { FaqAccordion, type FaqItem } from "@/components/faq-accordion";
 import { LanguageToggle } from "@/components/language-toggle";
 
 interface FaqSectionProps {
-  enItems: FaqItem[];
-  frItems: FaqItem[];
+  contentByLocale: Record<string, FaqItem[]>;
 }
 
-export function FaqSection({ enItems, frItems }: FaqSectionProps) {
-  const [locale, setLocale] = useState<"en" | "fr">("en");
-  const items = locale === "fr" && frItems.length > 0 ? frItems : enItems;
-  const hasFrench = frItems.length > 0;
+export function FaqSection({ contentByLocale }: FaqSectionProps) {
+  const locales = Object.keys(contentByLocale);
+  const [locale, setLocale] = useState(locales[0] ?? "en");
+  const items = contentByLocale[locale] ?? contentByLocale[locales[0] ?? "en"] ?? [];
 
   return (
     <>
-      {hasFrench && (
+      {locales.length > 1 && (
         <div className="mb-8 flex justify-center">
-          <LanguageToggle locale={locale} onChange={setLocale} />
+          <LanguageToggle locales={locales} locale={locale} onChange={setLocale} />
         </div>
       )}
       <FaqAccordion items={items} />

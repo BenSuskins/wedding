@@ -18,11 +18,13 @@ export async function saveContentBlock(
 ): Promise<SaveContentBlockState> {
   const admin = await requireAdminIdentity();
   const key = String(formData.get("key") ?? "").trim();
+  const locale = String(formData.get("locale") ?? "").trim();
   const title = String(formData.get("title") ?? "");
   const bodyMarkdown = String(formData.get("bodyMarkdown") ?? "");
 
   const result = await upsertContentBlock(getPrismaClient(), {
     key,
+    locale,
     title,
     bodyMarkdown,
     updatedByAdmin: admin.label,
@@ -36,7 +38,7 @@ export async function saveContentBlock(
   }
 
   revalidatePath("/admin/content");
-  revalidatePath(`/admin/content/${key}`);
-  revalidatePath(`/${key === "hero" ? "" : key}`);
+  revalidatePath(`/admin/content/${key}/${locale}`);
+  revalidatePath("/");
   redirect("/admin/content");
 }
