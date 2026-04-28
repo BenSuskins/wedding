@@ -23,6 +23,10 @@ function sanitiseBasename(name: string): string {
   return name.replace(/[^a-zA-Z0-9_-]/g, "_").slice(0, 40) || "upload";
 }
 
+function getUploadDir(): string {
+  return process.env.UPLOAD_DIR ?? path.join(process.cwd(), "public", "uploads");
+}
+
 export async function POST(req: Request): Promise<NextResponse> {
   const session = await auth();
   if (!session?.user?.adminUserId) {
@@ -62,11 +66,9 @@ export async function POST(req: Request): Promise<NextResponse> {
   const uniquePrefix = crypto.randomUUID().slice(0, 8);
   const filename = `${uniquePrefix}-${safeBase}.${ext}`;
 
-  const imagesDir = path.join(process.cwd(), "public", "images");
-  await fs.mkdir(imagesDir, { recursive: true });
-
-  const diskPath = `images/${filename}`;
-  const fullPath = path.join(process.cwd(), "public", diskPath);
+  const uploadDir = getUploadDir();
+  await fs.mkdir(uploadDir, { recursive: true });
+  const fullPath = path.join(uploadDir, filename);
 
   const buffer = Buffer.from(await file.arrayBuffer());
   await fs.writeFile(fullPath, buffer);
@@ -75,7 +77,7 @@ export async function POST(req: Request): Promise<NextResponse> {
   const asset = await prisma.imageAsset.create({
     data: {
       filename: file.name,
-      diskPath,
+      diskPath: filename,
       mime: file.type,
       bytes: file.size,
       uploadedBy: session.user.adminUserId,
@@ -84,7 +86,7 @@ export async function POST(req: Request): Promise<NextResponse> {
 
   return NextResponse.json({
     id: asset.id,
-    path: `/${diskPath}`,
+    path: `/api/images/${filename}`,
     filename: asset.filename,
     diskPath: asset.diskPath,
     mime: asset.mime,

@@ -35,7 +35,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - image_uploads:/app/uploads
+      - image_uploads:/app/public/uploads
 
 volumes:
   db_data:

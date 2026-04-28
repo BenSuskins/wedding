@@ -28,8 +28,7 @@ type UploadedAsset = {
 const initialState: SettingsFormState = {};
 
 function webPath(diskPath: string): string {
-  // "images/foo.jpg" → "/images/foo.jpg"
-  return `/${diskPath}`;
+  return `/api/images/${diskPath}`;
 }
 
 export function ImagePickerForm({
