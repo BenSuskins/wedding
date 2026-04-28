@@ -46,6 +46,14 @@ export function ImagePickerForm({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const justSaved = state.updatedKey === settingKey;
 
+  async function handleDelete(asset: ImageAssetRecord) {
+    const res = await fetch(`/api/admin/images/${asset.id}`, { method: "DELETE" });
+    if (res.ok) {
+      setAssets((prev) => prev.filter((a) => a.id !== asset.id));
+      if (selected === webPath(asset.diskPath)) setSelected("");
+    }
+  }
+
   async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -110,20 +118,29 @@ export function ImagePickerForm({
               const url = webPath(asset.diskPath);
               const isActive = selected === url;
               return (
-                <button
-                  key={asset.id}
-                  type="button"
-                  onClick={() => setSelected(url)}
-                  className={`relative h-16 w-16 overflow-hidden rounded border-2 transition-colors ${
-                    isActive
-                      ? "border-[color:var(--color-cornflower)]"
-                      : "border-transparent hover:border-[color:var(--color-ink)]/30"
-                  }`}
-                  title={asset.filename}
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={url} alt={asset.filename} className="h-full w-full object-cover" />
-                </button>
+                <div key={asset.id} className="group relative h-16 w-16">
+                  <button
+                    type="button"
+                    onClick={() => setSelected(url)}
+                    className={`h-full w-full overflow-hidden rounded border-2 transition-colors ${
+                      isActive
+                        ? "border-[color:var(--color-cornflower)]"
+                        : "border-transparent hover:border-[color:var(--color-ink)]/30"
+                    }`}
+                    title={asset.filename}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={url} alt={asset.filename} className="h-full w-full object-cover" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(asset)}
+                    className="absolute right-0.5 top-0.5 hidden rounded bg-black/60 px-1 text-xs text-white group-hover:block"
+                    title="Delete image"
+                  >
+                    ×
+                  </button>
+                </div>
               );
             })}
           </div>
