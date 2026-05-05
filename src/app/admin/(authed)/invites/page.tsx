@@ -19,6 +19,10 @@ const statusBadge: Record<InviteStatus, { label: string; className: string }> = 
     label: "Responded",
     className: "bg-green-50 text-green-800 border border-green-200",
   },
+  declined: {
+    label: "Declined",
+    className: "bg-red-50 text-red-800 border border-red-200",
+  },
 };
 
 export default async function AdminInvitesPage() {

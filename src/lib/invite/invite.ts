@@ -57,7 +57,7 @@ export interface InviteDetailRecord extends InviteRecord {
   eventAllowances: InviteEventAllowanceRecord[];
 }
 
-export type InviteStatus = "not_sent" | "awaiting" | "responded";
+export type InviteStatus = "not_sent" | "awaiting" | "responded" | "declined";
 
 export interface InviteListItem extends InviteRecord {
   activeGuestCount: number;
@@ -112,10 +112,13 @@ export type UpdateInviteCoreInput = z.input<typeof updateCoreSchema>;
 export type GuestInput = z.input<typeof guestInputSchema>;
 export type UpdateInvitePreferencesInput = z.input<typeof updatePreferencesSchema>;
 
-function deriveInviteStatus(invitationSent: boolean, hasResponded: boolean): InviteStatus {
-  if (hasResponded) return "responded";
-  if (invitationSent) return "awaiting";
-  return "not_sent";
+function deriveInviteStatus(
+  invitationSent: boolean,
+  responses: { attending: boolean }[],
+): InviteStatus {
+  if (responses.length === 0) return invitationSent ? "awaiting" : "not_sent";
+  if (responses.every((r) => !r.attending)) return "declined";
+  return "responded";
 }
 
 export function listInvites(
@@ -130,7 +133,7 @@ export function listInvites(
           where: { deletedAt: null },
           select: {
             displayName: true,
-            rsvpResponses: { where: { deletedAt: null }, select: { id: true }, take: 1 },
+            rsvpResponses: { where: { deletedAt: null }, select: { attending: true } },
           },
         },
         eventAllowances: { select: { event: { select: { title: true } } } },
@@ -155,7 +158,7 @@ export function listInvites(
       hasResponded: row.guests.some((g) => g.rsvpResponses.length > 0),
       status: deriveInviteStatus(
         row.invitationSent,
-        row.guests.some((g) => g.rsvpResponses.length > 0),
+        row.guests.flatMap((g) => g.rsvpResponses),
       ),
     })),
   );
