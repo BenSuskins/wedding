@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { getSiteSetting } from "@/lib/content/site-setting";
-import { getDashboardStats } from "@/lib/rsvp/stats";
+import { getDashboardStats, getEventBreakdown } from "@/lib/rsvp/stats";
 import { getPrismaClient } from "@/server/db";
 
 export const dynamic = "force-dynamic";
@@ -23,13 +23,15 @@ function daysFrom(isoDate: string): number {
 
 export default async function AdminDashboardPage() {
   const prisma = getPrismaClient();
-  const [statsResult, weddingDateResult, rsvpDeadlineResult] = await Promise.all([
+  const [statsResult, eventBreakdownResult, weddingDateResult, rsvpDeadlineResult] = await Promise.all([
     getDashboardStats(prisma),
+    getEventBreakdown(prisma),
     getSiteSetting(prisma, "wedding_date"),
     getSiteSetting(prisma, "rsvp_deadline"),
   ]);
 
   const stats = statsResult.isOk() ? statsResult.value : null;
+  const eventBreakdown = eventBreakdownResult.isOk() ? eventBreakdownResult.value : [];
   const weddingDate = weddingDateResult.isOk() ? weddingDateResult.value.value.isoDate : null;
   const rsvpDeadline = rsvpDeadlineResult.isOk() ? rsvpDeadlineResult.value.value.isoDate : null;
 
@@ -138,6 +140,39 @@ export default async function AdminDashboardPage() {
             </div>
           </div>
         </>
+      )}
+
+      {eventBreakdown.length > 0 && (
+        <div>
+          <p className="mb-3 text-xs uppercase tracking-[0.2em] text-[color:var(--color-muted)]">
+            By event
+          </p>
+          <div className="space-y-3">
+            {eventBreakdown.map((event) => (
+              <div key={event.eventId} className="rounded border border-[color:var(--color-ink)]/10 p-5">
+                <p className="mb-3 font-serif text-lg">{event.title}</p>
+                <dl className="grid grid-cols-4 gap-3 text-center">
+                  <div>
+                    <dd className="font-serif text-2xl text-green-700">{event.attending}</dd>
+                    <dt className="mt-0.5 text-xs text-[color:var(--color-muted)]">Attending</dt>
+                  </div>
+                  <div>
+                    <dd className="font-serif text-2xl text-red-700">{event.declined}</dd>
+                    <dt className="mt-0.5 text-xs text-[color:var(--color-muted)]">Declined</dt>
+                  </div>
+                  <div>
+                    <dd className="font-serif text-2xl text-[color:var(--color-muted)]">{event.noResponse}</dd>
+                    <dt className="mt-0.5 text-xs text-[color:var(--color-muted)]">No response</dt>
+                  </div>
+                  <div>
+                    <dd className="font-serif text-2xl">{event.total}</dd>
+                    <dt className="mt-0.5 text-xs text-[color:var(--color-muted)]">Total</dt>
+                  </div>
+                </dl>
+              </div>
+            ))}
+          </div>
+        </div>
       )}
 
       <div>

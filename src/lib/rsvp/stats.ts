@@ -13,6 +13,66 @@ export interface DashboardStats {
   guestsDeclined: number;
 }
 
+export interface EventBreakdown {
+  eventId: string;
+  slug: string;
+  title: string;
+  attending: number;
+  declined: number;
+  noResponse: number;
+  total: number;
+}
+
+export function getEventBreakdown(
+  prisma: PrismaClient,
+): ResultAsync<EventBreakdown[], UnexpectedError> {
+  return ResultAsync.fromPromise(
+    prisma.event.findMany({ orderBy: { orderIndex: "asc" } }).then((events) =>
+      Promise.all(
+        events.map(async (event) => {
+          const [attending, declined, total] = await Promise.all([
+            prisma.rsvpResponse.count({
+              where: {
+                eventId: event.id,
+                attending: true,
+                deletedAt: null,
+                guest: { deletedAt: null, invite: { deletedAt: null } },
+              },
+            }),
+            prisma.rsvpResponse.count({
+              where: {
+                eventId: event.id,
+                attending: false,
+                deletedAt: null,
+                guest: { deletedAt: null, invite: { deletedAt: null } },
+              },
+            }),
+            prisma.guest.count({
+              where: {
+                deletedAt: null,
+                invite: {
+                  deletedAt: null,
+                  eventAllowances: { some: { eventId: event.id } },
+                },
+              },
+            }),
+          ]);
+          return {
+            eventId: event.id,
+            slug: event.slug,
+            title: event.title,
+            attending,
+            declined,
+            noResponse: total - attending - declined,
+            total,
+          };
+        }),
+      ),
+    ),
+    unexpectedError,
+  );
+}
+
 export function getDashboardStats(
   prisma: PrismaClient,
 ): ResultAsync<DashboardStats, UnexpectedError> {
