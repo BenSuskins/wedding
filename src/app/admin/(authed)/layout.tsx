@@ -55,7 +55,7 @@ export default async function AdminAuthedLayout({ children }: { children: ReactN
   return (
     <div className="flex min-h-screen bg-[color:var(--color-paper)] text-[color:var(--color-ink)]">
       <AdminSidebar logoText={logoText} footer={footer} />
-      <main className="flex-1 overflow-auto px-8 py-8">{children}</main>
+      <main className="flex-1 overflow-auto px-4 py-6 pt-[57px] md:px-8 md:py-8 md:pt-8">{children}</main>
     </div>
   );
 }
