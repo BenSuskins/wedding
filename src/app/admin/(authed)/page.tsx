@@ -151,7 +151,7 @@ export default async function AdminDashboardPage() {
             {eventBreakdown.map((event) => (
               <div key={event.eventId} className="rounded border border-[color:var(--color-ink)]/10 p-5">
                 <p className="mb-3 font-serif text-lg">{event.title}</p>
-                <dl className="grid grid-cols-4 gap-3 text-center">
+                <dl className="grid grid-cols-2 gap-3 text-center sm:grid-cols-4">
                   <div>
                     <dd className="font-serif text-2xl text-green-700">{event.attending}</dd>
                     <dt className="mt-0.5 text-xs text-[color:var(--color-muted)]">Attending</dt>

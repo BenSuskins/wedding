@@ -47,7 +47,8 @@ export default async function AdminInvitesPage() {
       {invites.length === 0 ? (
         <p className="mt-8 text-[color:var(--color-muted)]">No invites yet.</p>
       ) : (
-        <table className="mt-8 w-full table-fixed border-collapse text-left text-sm">
+        <div className="mt-8 overflow-x-auto">
+        <table className="w-full table-fixed border-collapse text-left text-sm">
           <thead className="border-b border-[color:var(--color-ink)]/10 uppercase tracking-[0.2em] text-xs text-[color:var(--color-muted)]">
             <tr>
               <th className="py-2">Names</th>
@@ -83,6 +84,7 @@ export default async function AdminInvitesPage() {
             })}
           </tbody>
         </table>
+        </div>
       )}
     </section>
   );
