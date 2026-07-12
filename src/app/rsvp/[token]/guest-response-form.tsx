@@ -45,6 +45,11 @@ export function GuestResponseForm({
     selectionByCourse.set(selection.courseId, selection.optionId);
   }
 
+  // Remounting uncontrolled inputs whenever the saved value actually changes keeps
+  // defaultChecked in sync with the server; otherwise React's automatic form reset
+  // (on a successful action) snaps fields back to their original mount-time value.
+  const attendingKey = existing?.attending === true ? "yes" : existing?.attending === false ? "no" : "unset";
+
   return (
     <form
       action={action}
@@ -60,7 +65,7 @@ export function GuestResponseForm({
             {eventTitle}
           </p>
         </div>
-        <fieldset className="flex items-center gap-3 text-sm" disabled={disabled}>
+        <fieldset key={attendingKey} className="flex items-center gap-3 text-sm" disabled={disabled}>
           <legend className="sr-only">Attending</legend>
           <label className="inline-flex items-center gap-2">
             <input
@@ -90,28 +95,50 @@ export function GuestResponseForm({
       {attending ? (
         <div className="space-y-4">
           {courses.length > 0 ? (
-            <div className="grid gap-4 sm:grid-cols-2">
-              {courses.map((course) => (
-                <label key={course.id} className="block text-sm">
-                  <span className="block text-xs uppercase tracking-[0.2em] text-[color:var(--color-muted)]">
-                    {course.title}
-                  </span>
-                  <select
-                    name={`menu:${course.id}`}
-                    defaultValue={selectionByCourse.get(course.id) ?? ""}
-                    disabled={disabled}
-                    className="mt-1 w-full rounded border border-[color:var(--color-ink)]/20 bg-white px-3 py-2"
-                  >
-                    <option value="">— no selection —</option>
-                    {course.options.map((option) => (
-                      <option key={option.id} value={option.id}>
-                        {option.label}
-                        {option.description ? ` — ${option.description}` : ""}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              ))}
+            <div className="grid gap-5 sm:grid-cols-2">
+              {courses.map((course) => {
+                const selectedOptionId = selectionByCourse.get(course.id) ?? "";
+                return (
+                  <fieldset key={`${course.id}-${selectedOptionId}`} disabled={disabled}>
+                    <legend className="block text-xs uppercase tracking-[0.2em] text-[color:var(--color-muted)]">
+                      {course.title}
+                    </legend>
+                    <div className="mt-2 grid gap-2">
+                      {course.options.map((option) => (
+                        <label
+                          key={option.id}
+                          className="group flex cursor-pointer items-start gap-3 rounded border border-[color:var(--color-ink)]/20 px-3 py-2 text-sm transition-colors has-checked:border-[color:var(--color-ink)] has-checked:bg-[color:var(--color-ink)]/5 has-disabled:cursor-not-allowed has-disabled:opacity-50"
+                        >
+                          <input
+                            type="radio"
+                            name={`menu:${course.id}`}
+                            value={option.id}
+                            defaultChecked={selectedOptionId === option.id}
+                            className="mt-1"
+                          />
+                          <span>
+                            <span className="block font-medium">{option.label}</span>
+                            {option.description ? (
+                              <span className="block text-xs text-[color:var(--color-muted)]">
+                                {option.description}
+                              </span>
+                            ) : null}
+                          </span>
+                        </label>
+                      ))}
+                      <label className="group flex cursor-pointer items-center gap-3 rounded border border-[color:var(--color-ink)]/20 px-3 py-2 text-sm text-[color:var(--color-muted)] transition-colors has-checked:border-[color:var(--color-ink)] has-checked:bg-[color:var(--color-ink)]/5 has-disabled:cursor-not-allowed has-disabled:opacity-50">
+                        <input
+                          type="radio"
+                          name={`menu:${course.id}`}
+                          value=""
+                          defaultChecked={selectedOptionId === ""}
+                        />
+                        — no selection —
+                      </label>
+                    </div>
+                  </fieldset>
+                );
+              })}
             </div>
           ) : null}
         </div>
