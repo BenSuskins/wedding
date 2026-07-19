@@ -1,17 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 
 import { LanguageToggle } from "@/components/language-toggle";
 
 interface TravelSectionProps {
-  contentByLocale: Record<string, string[]>;
+  contentByLocale: Record<string, ReactNode>;
 }
 
 export function TravelSection({ contentByLocale }: TravelSectionProps) {
   const locales = Object.keys(contentByLocale);
   const [locale, setLocale] = useState(locales[0] ?? "en");
-  const paragraphs = contentByLocale[locale] ?? contentByLocale[locales[0] ?? "en"] ?? [];
+  const content = contentByLocale[locale] ?? contentByLocale[locales[0] ?? "en"];
 
   return (
     <div>
@@ -37,22 +37,11 @@ export function TravelSection({ contentByLocale }: TravelSectionProps) {
       >
         Travel &amp;<br />Accommodation
       </h2>
-      <div className="space-y-4">
-        {paragraphs.length > 0 ? (
-          paragraphs.map((para, i) => (
-            <p
-              key={i}
-              className="max-w-[46ch] text-[length:clamp(1rem,0.95rem+0.25vw,1.125rem)] leading-[1.65] text-[color:var(--color-muted)]"
-              style={{ textWrap: "pretty", whiteSpace: "pre-line" } as React.CSSProperties}
-            >
-              {para.replace(/^#+\s*/gm, "").trim()}
-            </p>
-          ))
-        ) : (
-          <p className="max-w-[46ch] text-[length:clamp(1rem,0.95rem+0.25vw,1.125rem)] leading-[1.65] text-[color:var(--color-muted)]">
-            Travel information coming soon.
-          </p>
-        )}
+      <div
+        className="max-w-[46ch] text-[length:clamp(1rem,0.95rem+0.25vw,1.125rem)] leading-[1.65] text-[color:var(--color-muted)]"
+        style={{ textWrap: "pretty" } as React.CSSProperties}
+      >
+        {content ?? "Travel information coming soon."}
       </div>
     </div>
   );

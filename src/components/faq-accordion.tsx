@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 
 export interface FaqItem {
   question: string;
-  answer: string;
+  answer: ReactNode;
 }
 
 export function FaqAccordion({ items }: { items: FaqItem[] }) {
@@ -39,12 +39,12 @@ export function FaqAccordion({ items }: { items: FaqItem[] }) {
               style={{ gridTemplateRows: isOpen ? "1fr" : "0fr" }}
             >
               <div className="overflow-hidden">
-                <p
+                <div
                   className="max-w-[58ch] pb-6 pl-4 text-[length:clamp(1rem,0.95rem+0.25vw,1.125rem)] leading-[1.65] text-[color:var(--color-muted)]"
                   style={{ borderLeft: "2px solid var(--color-cornflower)" }}
                 >
                   {item.answer}
-                </p>
+                </div>
               </div>
             </dd>
           </div>

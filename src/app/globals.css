@@ -102,4 +102,81 @@
       scroll-behavior: auto !important;
     }
   }
+
+  /* Rendered markdown from ContentBlock bodies */
+  .markdown-content h1,
+  .markdown-content h2,
+  .markdown-content h3,
+  .markdown-content h4 {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    line-height: 1.2;
+    margin-top: 1.2em;
+    margin-bottom: 0.5em;
+  }
+  .markdown-content h1:first-child,
+  .markdown-content h2:first-child,
+  .markdown-content h3:first-child,
+  .markdown-content h4:first-child {
+    margin-top: 0;
+  }
+  .markdown-content h1 {
+    font-size: clamp(1.75rem, 1.5rem + 1vw, 2.5rem);
+  }
+  .markdown-content h2 {
+    font-size: clamp(1.4rem, 1.2rem + 0.8vw, 1.9rem);
+  }
+  .markdown-content h3 {
+    font-size: clamp(1.15rem, 1rem + 0.5vw, 1.4rem);
+  }
+  .markdown-content h4 {
+    font-size: clamp(1.05rem, 1rem + 0.25vw, 1.2rem);
+    font-style: italic;
+  }
+  .markdown-content p {
+    margin-bottom: 1em;
+  }
+  .markdown-content p:last-child {
+    margin-bottom: 0;
+  }
+  .markdown-content strong {
+    font-weight: 600;
+  }
+  .markdown-content em {
+    font-style: italic;
+  }
+  .markdown-content a {
+    color: var(--color-cornflower);
+    text-underline-offset: 3px;
+  }
+  .markdown-content ul,
+  .markdown-content ol {
+    margin: 0 0 1em 1.25em;
+  }
+  .markdown-content ul {
+    list-style: disc;
+  }
+  .markdown-content ol {
+    list-style: decimal;
+  }
+  .markdown-content li {
+    margin-bottom: 0.3em;
+  }
+  .markdown-content blockquote {
+    border-left: 2px solid var(--color-peach);
+    padding-left: 1em;
+    font-style: italic;
+    color: var(--color-muted);
+    margin: 0 0 1em;
+  }
+  .markdown-content hr {
+    border: none;
+    border-top: 1px solid var(--color-cornflower);
+    opacity: 0.35;
+    margin: 1.5em 0;
+  }
+  .markdown-content img {
+    border-radius: 4px;
+    margin: 1em 0;
+  }
 }

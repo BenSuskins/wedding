@@ -16,10 +16,7 @@ export async function ContentBlockPage({ blockKey }: { blockKey: string }) {
   return (
     <section className="mx-auto max-w-3xl px-6 py-16">
       <h1 className="font-serif text-4xl">{block.title}</h1>
-      <RenderedMarkdown
-        source={block.bodyMarkdown}
-        className="prose prose-neutral mt-8 max-w-none"
-      />
+      <RenderedMarkdown source={block.bodyMarkdown} className="markdown-content mt-8" />
     </section>
   );
 }

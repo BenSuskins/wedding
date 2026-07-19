@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Countdown } from "@/components/countdown";
 import { FaqSection } from "@/components/faq-section";
 import { IntroSection } from "@/components/intro-section";
+import { RenderedMarkdown } from "@/components/rendered-markdown";
 import { Sprig } from "@/components/sprig";
 import { TravelSection } from "@/components/travel-section";
 import { listContentBlocks } from "@/lib/content/content-block";
@@ -90,8 +91,25 @@ export default async function LandingPage() {
   const events = eventsResult.isOk() ? eventsResult.value : [];
   const heroLocales = contentBlocks.filter((b) => b.key === "hero").map((b) => b.locale);
   const introByLocale = heroLocales.length > 0
-    ? Object.fromEntries(heroLocales.map((locale) => [locale, blockByKeyLocale.get(`hero/${locale}`)?.bodyMarkdown ?? ""]))
-    : { en: "We are so glad you can be with us. This little site holds everything you need to know for the day." };
+    ? Object.fromEntries(
+        heroLocales.map((locale) => [
+          locale,
+          <RenderedMarkdown
+            key={locale}
+            source={blockByKeyLocale.get(`hero/${locale}`)?.bodyMarkdown ?? ""}
+            className="markdown-content"
+          />,
+        ]),
+      )
+    : {
+        en: (
+          <RenderedMarkdown
+            key="en"
+            source="We are so glad you can be with us. This little site holds everything you need to know for the day."
+            className="markdown-content"
+          />
+        ),
+      };
 
   const travelLocales = contentBlocks.filter((b) => b.key === "travel").map((b) => b.locale);
   const faqLocales = contentBlocks.filter((b) => b.key === "faq").map((b) => b.locale);
@@ -135,17 +153,27 @@ export default async function LandingPage() {
   const travelByLocale = Object.fromEntries(
     travelLocales.map((locale) => [
       locale,
-      (blockByKeyLocale.get(`travel/${locale}`)?.bodyMarkdown ?? "")
-        .split(/\n\n+/)
-        .map((p) => p.trim())
-        .filter(Boolean),
+      <RenderedMarkdown
+        key={locale}
+        source={blockByKeyLocale.get(`travel/${locale}`)?.bodyMarkdown ?? ""}
+        className="markdown-content"
+      />,
     ]),
   );
 
   const faqByLocale = Object.fromEntries(
     faqLocales.map((locale) => [
       locale,
-      parseFaqMarkdown(blockByKeyLocale.get(`faq/${locale}`)?.bodyMarkdown ?? ""),
+      parseFaqMarkdown(blockByKeyLocale.get(`faq/${locale}`)?.bodyMarkdown ?? "").map((item, i) => ({
+        question: item.question,
+        answer: (
+          <RenderedMarkdown
+            key={i}
+            source={item.answer}
+            className="markdown-content"
+          />
+        ),
+      })),
     ]),
   );
 
@@ -422,12 +450,12 @@ export default async function LandingPage() {
       >
         <div className="mx-auto max-w-[1140px] px-[clamp(1.5rem,5vw,4rem)]">
           <div className="landing-two-col items-center gap-[clamp(3rem,6vw,7rem)]">
-            <div className="relative w-full" style={{ aspectRatio: "3/2" }}>
+            <div className="relative w-full" style={{ aspectRatio: "9/16" }}>
               <Image
                 src={travelImagePath}
                 alt="Travel photo"
                 fill
-                className="object-cover"
+                className="object-contain"
               />
             </div>
             <TravelSection contentByLocale={travelByLocale} />
