@@ -43,6 +43,9 @@ const sanitizerOptions: IOptions = {
       rel: "noreferrer noopener",
       target: "_blank",
     }),
+    // Content blocks are embedded within a page that already has its own <h1>;
+    // demote authored h1s to h2 so a block never introduces a second page-level heading.
+    h1: "h2",
   },
 };
 
