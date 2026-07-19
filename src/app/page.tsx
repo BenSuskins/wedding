@@ -9,6 +9,7 @@ import { Sprig } from "@/components/sprig";
 import { TravelSection } from "@/components/travel-section";
 import { listContentBlocks } from "@/lib/content/content-block";
 import { listEvents } from "@/lib/content/event";
+import { chooseHeroImagePath } from "@/lib/content/hero-image";
 import { getSiteSetting } from "@/lib/content/site-setting";
 import { parseFaqMarkdown } from "@/lib/parse-faq-markdown";
 import { getPrismaClient } from "@/server/db";
@@ -51,6 +52,7 @@ export default async function LandingPage() {
     heroPretitleResult,
     rsvpHeadingResult,
     heroImageResult,
+    heroImagesResult,
     ceremonyImageResult,
     receptionImageResult,
     travelImageResult,
@@ -64,6 +66,7 @@ export default async function LandingPage() {
     getSiteSetting(prisma, "hero_pretitle"),
     getSiteSetting(prisma, "rsvp_heading"),
     getSiteSetting(prisma, "hero_image_path"),
+    getSiteSetting(prisma, "hero_image_paths"),
     getSiteSetting(prisma, "ceremony_image_path"),
     getSiteSetting(prisma, "reception_image_path"),
     getSiteSetting(prisma, "travel_image_path"),
@@ -82,7 +85,10 @@ export default async function LandingPage() {
   const rsvpHeading = rsvpHeadingResult.isOk() ? rsvpHeadingResult.value.value.text : "Will you join us?";
   const weddingDate = weddingDateResult.isOk() ? new Date(weddingDateResult.value.value.isoDate) : null;
   const rsvpDeadline = rsvpDeadlineResult.isOk() ? new Date(rsvpDeadlineResult.value.value.isoDate) : null;
-  const heroImagePath = heroImageResult.isOk() ? heroImageResult.value.value.path : null;
+  const heroImagePath = chooseHeroImagePath(
+    heroImagesResult.isOk() ? heroImagesResult.value.value.paths : [],
+    heroImageResult.isOk() ? heroImageResult.value.value.path : null,
+  );
   const ceremonyImagePath = ceremonyImageResult.isOk() ? ceremonyImageResult.value.value.path : null;
   const receptionImagePath = receptionImageResult.isOk() ? receptionImageResult.value.value.path : null;
   const travelImagePath = travelImageResult.isOk()

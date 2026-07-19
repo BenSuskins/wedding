@@ -38,6 +38,20 @@ describe("site setting service", () => {
     expect(record.value.title).toBe("Ben & Partner");
   });
 
+  it("round-trips the hero slideshow image list", async () => {
+    const writeResult = await setSiteSetting(harness.prisma, "hero_image_paths", {
+      paths: ["/images/one.jpg", "/images/two.jpg"],
+    });
+    expect(writeResult.isOk()).toBe(true);
+
+    const readResult = await getSiteSetting(harness.prisma, "hero_image_paths");
+    expect(readResult.isOk()).toBe(true);
+    expect(readResult._unsafeUnwrap().value.paths).toEqual([
+      "/images/one.jpg",
+      "/images/two.jpg",
+    ]);
+  });
+
   it("rejects an invalid value shape", async () => {
     const result = await setSiteSetting(harness.prisma, "wedding_date", {
       isoDate: "not-a-date",

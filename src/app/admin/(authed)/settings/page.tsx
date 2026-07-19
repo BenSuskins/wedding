@@ -3,6 +3,7 @@ import { listSiteSettings, type SiteSettingRecord } from "@/lib/content/site-set
 import { getPrismaClient } from "@/server/db";
 
 import { ImagePickerForm } from "./image-picker-form";
+import { MultiImagePickerForm } from "./multi-image-picker-form";
 import { SettingForm } from "./setting-form";
 
 export const dynamic = "force-dynamic";
@@ -48,6 +49,7 @@ export default async function AdminSettingsPage() {
   const weddingDate = byKey.get("wedding_date");
   const rsvpDeadline = byKey.get("rsvp_deadline");
   const heroImage = byKey.get("hero_image_path");
+  const heroImages = byKey.get("hero_image_paths");
   const ceremonyImage = byKey.get("ceremony_image_path");
   const receptionImage = byKey.get("reception_image_path");
   const travelImage = byKey.get("travel_image_path");
@@ -116,12 +118,19 @@ export default async function AdminSettingsPage() {
           title="Images"
           description="Photos used on the public site. Upload new images or enter a URL."
         />
-        <ImagePickerForm
-          settingKey="hero_image_path"
-          label="Hero image"
-          currentPath={heroImage && heroImage.key === "hero_image_path" ? heroImage.value.path : ""}
+        <MultiImagePickerForm
+          settingKey="hero_image_paths"
+          label="Hero images (slideshow)"
+          description="One image is shown at random on each page load. With a single image selected, it always shows that one."
+          currentPaths={
+            heroImages && heroImages.key === "hero_image_paths"
+              ? heroImages.value.paths
+              : heroImage && heroImage.key === "hero_image_path" && heroImage.value.path
+                ? [heroImage.value.path]
+                : []
+          }
           initialAssets={assets}
-          updatedAt={heroImage?.updatedAt ?? null}
+          updatedAt={heroImages?.updatedAt ?? null}
         />
         <ImagePickerForm
           settingKey="ceremony_image_path"

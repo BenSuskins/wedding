@@ -44,6 +44,13 @@ function buildValue(key: SiteSettingKey, formData: FormData): unknown {
       return { text: String(formData.get("rsvp_heading") ?? "") };
     case "hero_image_path":
       return { path: String(formData.get("hero_image_path") ?? "") };
+    case "hero_image_paths":
+      return {
+        paths: formData
+          .getAll("hero_image_paths")
+          .map((entry) => String(entry).trim())
+          .filter((path) => path.length > 0),
+      };
     case "ceremony_image_path":
       return { path: String(formData.get("ceremony_image_path") ?? "") };
     case "reception_image_path":

@@ -15,6 +15,7 @@ export const SITE_SETTING_KEYS = [
   "hero_pretitle",
   "rsvp_heading",
   "hero_image_path",
+  "hero_image_paths",
   "ceremony_image_path",
   "reception_image_path",
   "travel_image_path",
@@ -33,6 +34,9 @@ export const siteSettingSchemas = {
   hero_pretitle: z.object({ text: z.string().trim().min(1).max(300) }),
   rsvp_heading: z.object({ text: z.string().trim().min(1).max(200) }),
   hero_image_path: z.object({ path: z.string().trim().min(1).max(500) }),
+  hero_image_paths: z.object({
+    paths: z.array(z.string().trim().min(1).max(500)).max(20),
+  }),
   ceremony_image_path: z.object({ path: z.string().trim().min(1).max(500) }),
   reception_image_path: z.object({ path: z.string().trim().min(1).max(500) }),
   travel_image_path: z.object({ path: z.string().trim().min(1).max(500) }),
