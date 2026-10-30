@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.6
 
-FROM oven/bun:1.4.2-alpine AS bun
+FROM oven/bun:1.4.4-alpine AS bun
 
 FROM node:22-alpine AS base
 COPY --from=bun /usr/local/bin/bun /usr/local/bin/bun
@@ -19,7 +19,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN bun run build
 
 # Self-contained Prisma CLI for running migrations at startup.
-FROM oven/bun:1.4.2-alpine AS prisma-cli
+FROM oven/bun:1.4.4-alpine AS prisma-cli
 WORKDIR /opt/prisma-cli
 RUN bun add --exact --no-save prisma@7.7.0
 
