@@ -55,7 +55,7 @@ jobs:
 
   e2e:
     name: e2e (Playwright)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     services:
       postgres:
         image: postgres:16-alpine
@@ -99,16 +99,16 @@ jobs:
 
       - name: Install Playwright browsers
         if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: bun node_modules/@playwright/test/cli.js install --with-deps chromium
+        run: node node_modules/@playwright/test/cli.js install --with-deps chromium
 
       - name: Install Chromium system deps
         if: steps.playwright-cache.outputs.cache-hit == 'true'
-        run: bun node_modules/@playwright/test/cli.js install-deps chromium
+        run: node node_modules/@playwright/test/cli.js install-deps chromium
 
       - name: Run Playwright tests
         env:
           CI: "true"
-        run: bun node_modules/@playwright/test/cli.js test
+        run: node node_modules/@playwright/test/cli.js test
 
       - name: Upload Playwright report
         if: failure()
