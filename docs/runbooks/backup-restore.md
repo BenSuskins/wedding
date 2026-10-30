@@ -14,13 +14,13 @@ A weekly copy of the backup directory should be shipped off-host (rsync, object 
 DATABASE_URL=postgres://... \
 BACKUP_DIR=/var/backups/wedding \
 BACKUP_RETENTION_DAYS=14 \
-pnpm exec tsx scripts/nightly-snapshot.ts
+bunx tsx scripts/nightly-snapshot.ts
 ```
 
 Schedule via a k8s CronJob or a host cron entry (example, nightly at 02:15):
 
 ```
-15 2 * * * cd /opt/wedding && pnpm exec tsx scripts/nightly-snapshot.ts >> /var/log/wedding-snapshot.log 2>&1
+15 2 * * * cd /opt/wedding && bunx tsx scripts/nightly-snapshot.ts >> /var/log/wedding-snapshot.log 2>&1
 ```
 
 Requirements on the runner: `pg_dump` binary available on `PATH`, write access to `$BACKUP_DIR`, `DATABASE_URL` reachable.

@@ -5,17 +5,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-pnpm dev                    # Dev server
-pnpm build                  # Production build
-pnpm typecheck              # TypeScript check
-pnpm lint                   # ESLint
-pnpm test                   # Unit tests (vitest)
-pnpm test:watch             # Unit tests in watch mode
-pnpm test:contract          # Contract tests (Testcontainers + real Postgres)
-pnpm e2e                    # Playwright E2E tests
-pnpm db:generate            # Regenerate Prisma client after schema changes
-pnpm db:migrate             # Create + apply migration (dev)
-pnpm db:migrate:deploy      # Apply migrations (prod)
+bun run dev                    # Dev server
+bun run build                  # Production build
+bun run typecheck              # TypeScript check
+bun run lint                   # ESLint
+bun run test                   # Unit tests (vitest)
+bun run test:watch             # Unit tests in watch mode
+bun run test:contract          # Contract tests (Testcontainers + real Postgres)
+bun run e2e                    # Playwright E2E tests
+bun run db:generate            # Regenerate Prisma client after schema changes
+bun run db:migrate             # Create + apply migration (dev)
+bun run db:migrate:deploy      # Apply migrations (prod)
 docker compose up db        # Local Postgres only
 ```
 

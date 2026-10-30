@@ -21,7 +21,7 @@ export async function startPrismaTestHarness(): Promise<PrismaTestHarness> {
   const container = await new PostgreSqlContainer("postgres:16-alpine").start();
   const connectionString = container.getConnectionUri();
 
-  execFileSync("pnpm", ["exec", "prisma", "migrate", "deploy"], {
+  execFileSync("bun", ["node_modules/prisma/build/index.js", "migrate", "deploy"], {
     cwd: repoRoot,
     env: { ...process.env, DATABASE_URL: connectionString },
     stdio: "pipe",
