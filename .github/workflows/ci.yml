@@ -12,7 +12,6 @@ concurrency:
 
 env:
   NODE_VERSION: "22"
-  PNPM_VERSION: "10.33.0"
   NEXT_TELEMETRY_DISABLED: "1"
 
 jobs:
@@ -21,47 +20,38 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
+      - uses: oven-sh/setup-bun@v2
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm lint
-      - run: pnpm typecheck
-      - run: pnpm build
+      - run: bun install --frozen-lockfile
+      - run: bun run lint
+      - run: bun run typecheck
+      - run: bun run build
 
   unit:
     name: unit tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
+      - uses: oven-sh/setup-bun@v2
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm test
+      - run: bun install --frozen-lockfile
+      - run: bun run test
 
   contract:
     name: contract tests (Testcontainers)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
+      - uses: oven-sh/setup-bun@v2
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm test:contract
+      - run: bun install --frozen-lockfile
+      - run: bun run test:contract
 
   e2e:
     name: e2e (Playwright)
@@ -91,37 +81,34 @@ jobs:
       PUBLIC_BASE_URL: http://localhost:3000
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
+      - uses: oven-sh/setup-bun@v2
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
+      - run: bun install --frozen-lockfile
 
       - name: Apply Prisma migrations
-        run: pnpm exec prisma migrate deploy
+        run: bun node_modules/prisma/build/index.js migrate deploy
 
       - name: Restore Playwright browsers cache
         id: playwright-cache
         uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          key: playwright-${{ runner.os }}-${{ hashFiles('bun.lock') }}
 
       - name: Install Playwright browsers
         if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: pnpm exec playwright install --with-deps chromium
+        run: bun node_modules/@playwright/test/cli.js install --with-deps chromium
 
       - name: Install Chromium system deps
         if: steps.playwright-cache.outputs.cache-hit == 'true'
-        run: pnpm exec playwright install-deps chromium
+        run: bun node_modules/@playwright/test/cli.js install-deps chromium
 
       - name: Run Playwright tests
         env:
           CI: "true"
-        run: pnpm exec playwright test
+        run: bun node_modules/@playwright/test/cli.js test
 
       - name: Upload Playwright report
         if: failure()

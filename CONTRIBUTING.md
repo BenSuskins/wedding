@@ -17,7 +17,7 @@ See the [README](README.md) for local dev setup instructions.
 ## Submitting a pull request
 
 1. Fork the repo and create a branch from `main`.
-2. Make your changes, keeping commits focused and the test suite green (`pnpm test`, `pnpm typecheck`, `pnpm lint`).
+2. Make your changes, keeping commits focused and the test suite green (`bun run test`, `bun run typecheck`, `bun run lint`).
 3. Open a PR against `main` with a clear description of what and why.
 
 ## Code style

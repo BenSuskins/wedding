@@ -61,7 +61,7 @@ wedding/
 ### Prerequisites
 
 - Node.js 20+
-- pnpm 10
+- Bun 1.4
 - Docker (for the local Postgres database)
 
 ### Setup
@@ -69,11 +69,11 @@ wedding/
 ```bash
 git clone git@github.com:bensuskins/wedding.git
 cd wedding
-pnpm install
+bun install
 docker compose up -d db
 cp .env.example .env.local        # fill in values
-pnpm db:migrate
-pnpm dev
+bun run db:migrate
+bun run dev
 ```
 
 Verify: visit `http://localhost:3000` — you should see the guest-facing home page.
@@ -96,15 +96,15 @@ At least one of `ADMIN_PASSWORD` or all three `OIDC_*` vars must be set to enabl
 
 | Command | Purpose |
 |---|---|
-| `pnpm dev` | Run the dev server |
-| `pnpm build` | Production build |
-| `pnpm typecheck` | TypeScript type check |
-| `pnpm lint` | ESLint |
-| `pnpm test` | Unit tests (vitest) |
-| `pnpm test:contract` | Contract tests against real Postgres (Testcontainers) |
-| `pnpm e2e` | Playwright end-to-end tests |
-| `pnpm db:migrate` | Create and apply migrations (dev) |
-| `pnpm db:migrate:deploy` | Apply pending migrations (production) |
+| `bun run dev` | Run the dev server |
+| `bun run build` | Production build |
+| `bun run typecheck` | TypeScript type check |
+| `bun run lint` | ESLint |
+| `bun run test` | Unit tests (vitest) |
+| `bun run test:contract` | Contract tests against real Postgres (Testcontainers) |
+| `bun run e2e` | Playwright end-to-end tests |
+| `bun run db:migrate` | Create and apply migrations (dev) |
+| `bun run db:migrate:deploy` | Apply pending migrations (production) |
 
 ## Customisation
 
@@ -135,7 +135,7 @@ Or build the image directly:
 docker build -t wedding .
 ```
 
-Set all environment variables listed above and run `pnpm db:migrate:deploy` before starting the app in production.
+Set all environment variables listed above and run `bun run db:migrate:deploy` before starting the app in production.
 
 ## Security
 

@@ -1,29 +1,27 @@
 # syntax=docker/dockerfile:1.6
 
+FROM oven/bun:1.4.2-alpine AS bun
+
 FROM node:22-alpine AS base
-RUN corepack enable && corepack prepare pnpm@10.33.0 --activate
+COPY --from=bun /usr/local/bin/bun /usr/local/bin/bun
 WORKDIR /app
 
 FROM base AS deps
-COPY package.json pnpm-lock.yaml prisma.config.ts ./
+COPY package.json bun.lock prisma.config.ts ./
 COPY prisma ./prisma
-RUN --mount=type=cache,id=pnpm-store,target=/root/.local/share/pnpm/store \
-    pnpm install --frozen-lockfile
+RUN --mount=type=cache,id=bun-cache,target=/root/.bun/install/cache \
+    bun install --frozen-lockfile
 
 FROM base AS builder
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
-RUN pnpm build
+RUN bun run build
 
-# Self-contained prisma CLI for running migrations at startup.
-# pnpm's symlink layout doesn't survive a COPY, so install the CLI with
-# plain npm into an isolated prefix.
-FROM node:22-alpine AS prisma-cli
-RUN mkdir -p /opt/prisma-cli \
- && cd /opt/prisma-cli \
- && npm init -y >/dev/null \
- && npm install --omit=optional --no-audit --no-fund prisma@7.7.0
+# Self-contained Prisma CLI for running migrations at startup.
+FROM oven/bun:1.4.2-alpine AS prisma-cli
+WORKDIR /opt/prisma-cli
+RUN bun add --exact --no-save prisma@7.7.0
 
 FROM node:22-alpine AS runner
 WORKDIR /app
