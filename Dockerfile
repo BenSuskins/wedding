@@ -2,7 +2,7 @@
 
 FROM oven/bun:1.4.2-alpine AS bun
 
-FROM node:22-alpine AS base
+FROM node:25-alpine AS base
 COPY --from=bun /usr/local/bin/bun /usr/local/bin/bun
 WORKDIR /app
 
@@ -23,7 +23,7 @@ FROM oven/bun:1.4.2-alpine AS prisma-cli
 WORKDIR /opt/prisma-cli
 RUN bun add --exact --no-save prisma@7.7.0
 
-FROM node:22-alpine AS runner
+FROM node:25-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production \
     NEXT_TELEMETRY_DISABLED=1 \
