@@ -137,6 +137,10 @@ docker build -t wedding .
 
 Set all environment variables listed above and run `bun run db:migrate:deploy` before starting the app in production.
 
+## Architecture
+
+See [ARCHITECTURE.md](ARCHITECTURE.md) for system design, components, and data flow.
+
 ## Security
 
 See [SECURITY.md](SECURITY.md) for vulnerability reporting.
